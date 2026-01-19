@@ -1,0 +1,16 @@
+"0","# Calculate the 60th %ile of the standard normal.
+qnorm(0.6,0,1)
+"
+"1","[1]"
+"1"," 0.2533471"
+"1","
+"
+"0","# Calculate the probability that a value lies below 0.8 in the standard normal distribution"
+"0","pnorm(0.8,0,1)"
+"1","[1]"
+"1"," 0.7881446"
+"1","
+"
+"0","# Draw 1000 samples of 30 coin tosses with p(heads) = 0.6 # and plot the distribution"
+"0","# Syntax: rbinom (# observations, # trials per observation, probability of success )"
+"0","hist(rbinom(1000,30,0.6))"

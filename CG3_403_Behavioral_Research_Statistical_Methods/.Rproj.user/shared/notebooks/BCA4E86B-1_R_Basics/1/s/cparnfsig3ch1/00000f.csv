@@ -1,0 +1,74 @@
+"0","# From Mariam Aly's tutorial
+##############################################################################
+## Factors
+##############################################################################
+# A factor is a vector object used to specify a discrete classification (grouping) of the components of other vectors of the same length.
+# can be ordered or unordered
+
+## Example for 'ragged arrays', which can have subclasses of different sizes
+# say you have 6 subjects and 3 conditions in your experiment
+# this is a list of the condition that each subject took part in
+condition=c('faces','scenes','objects','faces','scenes','objects')
+# can create a factor for condition
+conditionf=factor(condition) #use the factor() function
+# print to screen
+print(conditionf)
+"
+"1","[1]"
+"1"," faces  "
+"1"," scenes "
+"1"," objects"
+"1"," faces  "
+"1"," scenes "
+"1"," objects"
+"1","
+"
+"1",""
+"1","Levels: "
+"1",""
+"1","faces objects scenes"
+"1",""
+"1","
+"
+"0","# produces: "
+"0","# faces   scenes  objects faces   scenes  objects"
+"0","# Levels: faces objects scenes"
+"0","# can ask specifically for the levels of the factor"
+"0","levels(conditionf) # returns ""faces""   ""objects"" ""scenes"""
+"1","[1]"
+"1"," ""faces""  "
+"1"," ""objects"""
+"1"," ""scenes"" "
+"1","
+"
+"0","# you can then use the tapply() function to calculate things like the mean for a variable you have for each of your factors"
+"0","# continued from above"
+"0","accuracy=c(90,88,72,84,81,94) # accuracy for each of you 6 subjects, in the same order in which you input the conditions (i.e. f,s,o,f,s,o)"
+"0",""
+"0","# now calculate the mean accuracy for each condition using tapply()"
+"0","# this function takes this form: tapply(data,factor/index variable,function), where factor/index is the factor variable you created and function is what you want to do on the data"
+"0",""
+"0","# so if you want to see mean age for males and females, data=age, factor/index=gender, function=mean"
+"0","	# looks at data in the first variable as a function of different levels of the second variable"
+"0","# note that tapply() will work even if the second argument is not a factor, because the argument will be coerced into a factor when necessary (using as.factor())"
+"0",""
+"0","# e.g. calculate the mean"
+"0","condaccmeans=tapply(accuracy,conditionf,mean)"
+"0","print(condaccmeans)"
+"1","  faces "
+"1","objects "
+"1"," scenes "
+"1","
+"
+"1","   87.0 "
+"1","   83.0 "
+"1","   84.5 "
+"1","
+"
+"0","# returns :"
+"0","# faces objects  scenes "
+"0","  # 87.0    83.0    84.5 "
+"0","  	# would work if you use tapply(accuracy,condition,mean) because condition would be coerced into a factor"
+"0","  "
+"0","# The function tapply() is used to apply a function, here mean(), to each group  of components of the first argument, here accuracy, defined by the levels of the second component,here conditionf, as if they were separate vector structures. The result is a structure of the same length as the levels attribute of the factor containing the results."
+"0",""
