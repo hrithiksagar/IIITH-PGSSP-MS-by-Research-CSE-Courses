@@ -1,0 +1,63 @@
+---
+title: "Anscombe_rmd_code"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+Name: Rachakonda Hrithik Sagar 
+
+
+Roll No: 202390021
+
+```{r}
+data <- read.csv("Anscombe_dataset.csv")
+str(data)
+```
+
+
+#descriptive stats
+```{r}
+library(dplyr)
+
+data %>%
+  group_by(Group) %>%
+  summarise(
+    mean_x = mean(x),
+    mean_y = mean(y),
+    sd_x = sd(x),
+    sd_y = sd(y),
+    cor_xy = cor(x, y)
+  )
+```
+#plots
+```{r}
+par(mfrow = c(2,2))
+groups <- unique(data$Group)
+
+for(g in groups){
+  subset_data <- subset(data, Group == g)
+  plot(subset_data$x, subset_data$y,
+       main = paste("Group", g),
+       xlab = "X", ylab = "Y",
+       pch = 19)
+  abline(lm(y ~ x, subset_data), col = "red")
+}
+
+
+```
+
+
+
+Observations
+
+	•	Overall, the mean, standard deviation, and correlation are approximately the same across all four groups. However, the underlying data distributions and relationships differ substantially.
+
+	•	Group 1: A clear linear relationship is observed between the variables X and Y.
+
+	•	Group 2: A relationship between X and Y exists, but it is non-linear, which is not captured well by correlation alone.
+
+	•	Group 3: A generally linear relationship is present, but it is strongly influenced by a single outlier, which disproportionately affects the correlation.
+
+	•	Group 4: There is no meaningful relationship between X and Y; the mean, standard deviation, and correlation coefficient are largely driven by a single outlier.
+

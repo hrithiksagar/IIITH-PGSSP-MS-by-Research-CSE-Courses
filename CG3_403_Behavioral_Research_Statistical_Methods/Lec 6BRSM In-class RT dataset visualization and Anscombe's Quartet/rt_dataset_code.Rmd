@@ -1,0 +1,114 @@
+---
+title: "code"
+output:
+  pdf_document: default
+  html_document: default
+
+---
+Name: Rachakonda Hrithik Sagar 
+
+
+Roll No: 202390021
+
+```{r}
+rt <- read.csv("RT_dataset.csv") #add your file path
+```
+
+
+# mean RT per condition
+```{r}
+mean_A <- mean(rt$reaction_time_ms[rt$condition == "A"])
+mean_B <- mean(rt$reaction_time_ms[rt$condition == "B"])
+means <- c(mean_A, mean_B)
+names(means) <- c("Condition A", "Condition B")
+```
+
+
+
+# Bar plot
+
+
+  
+```{r}
+barplot(means,
+        ylab = "Reaction Time (ms)",
+        xlab = "conditions",
+        main = "Mean Reaction Time",
+        col = c("gray", "darkgray"))
+
+# OBSERVATIONS: 
+  # Bar plot shows Participants responded slower in condition B than condition A,
+  # but it only shows means, we cant information about outliers,
+  # variance and distribution shape
+```
+
+
+# boxplot
+
+
+
+```{r}
+boxplot(reaction_time_ms ~ condition,
+        data = rt,
+        ylab = "Reaction Time (ms)",
+        main = "Box Plot-RT",
+        col = c("lightblue", "lightgreen"))
+
+# OBSERVATIONS:
+  # We can observe that median reaction time for condition A is
+  # higher than for condition B, but we
+  # cant tell information about the distribution shape
+```
+
+# violin plot
+
+
+
+```{r}
+# install.packages("ggplot2") 
+library(ggplot2)
+
+ggplot(rt, aes(x = condition, y = reaction_time_ms)) +
+  geom_violin(fill = "lightgray") +
+  stat_summary(fun = median, geom = "point", size = 3, color = "red") +
+  ylab("Reaction Time (ms)") +
+  ggtitle("Violin Plot")
+
+
+# OBSERVATIONS:
+  # It shows the full distribution of the reaction time and
+  # also shows median, Condition A has more broader and more skewed
+  # distribution while Condition B has more concentrated and more symmetrical shape.
+
+```
+#learning curve graph across trials
+
+#trial means per condition
+```{r}
+trials <- unique(rt$trial)
+mean_trial_A <- numeric(length(trials))
+mean_trial_B <- numeric(length(trials))
+for (t in trials) {
+  mean_trial_A[t] <- mean(rt$reaction_time_ms[rt$trial==t & rt$condition=="A"])
+  mean_trial_B[t] <- mean(rt$reaction_time_ms[rt$trial==t & rt$condition=="B"])
+}
+
+```
+# Plot
+
+
+
+```{r}
+plot(trials, mean_trial_A, type="l", col="blue",
+     xlab="Trial", ylab="Reaction Time (ms)",
+     main="Learning Curve Across Trials")
+lines(trials, mean_trial_B, col="red")
+legend("topright", legend=c("A","B"), col=c("blue","red"), lty=1)
+
+
+
+# OBSERVATIONS:
+  # Reaction timne decreases across trials for both conditions,
+  # condition B remains consistently faster than Condition A,
+  # which suggestes Condition A is much tougher than Condition B
+```

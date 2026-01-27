@@ -1,0 +1,50 @@
+```
+rt <- read.csv("dataset") #add your file path
+
+#mean RT per condition
+mean_A <- mean(rt$reaction_time_ms[rt$condition == "A"])
+mean_B <- mean(rt$reaction_time_ms[rt$condition == "B"])
+means <- c(mean_A, mean_B)
+names(means) <- c("Condition A", "Condition B")
+
+# Bar plot
+barplot(means,
+        ylab = "Reaction Time (ms)",
+        xlab = "conditions",
+        main = "Mean Reaction Time",
+        col = c("gray", "darkgray"))
+
+#boxplot
+boxplot(reaction_time_ms ~ condition,
+        data = rt,
+        ylab = "Reaction Time (ms)",
+        main = "Box Plot-RT",
+        col = c("lightblue", "lightgreen"))
+
+#violin plot
+install.packages("ggplot2") 
+library(ggplot2)
+
+ggplot(rt, aes(x = condition, y = reaction_time_ms)) +
+  geom_violin(fill = "lightgray") +
+  stat_summary(fun = median, geom = "point", size = 3, color = "red") +
+  ylab("Reaction Time (ms)") +
+  ggtitle("Violin Plot")
+
+#learning curve graph across trials
+
+#trial means per condition
+
+trials <- unique(rt$trial)
+mean_trial_A <- numeric(length(trials))
+mean_trial_B <- numeric(length(trials))
+for (t in trials) {
+  mean_trial_A[t] <- mean(rt$reaction_time_ms[rt$trial==t & rt$condition=="A"])
+  mean_trial_B[t] <- mean(rt$reaction_time_ms[rt$trial==t & rt$condition=="B"])
+}
+# Plot
+plot(trials, mean_trial_A, type="l", col="blue",
+     xlab="Trial", ylab="Reaction Time (ms)",
+     main="Learning Curve Across Trials")
+lines(trials, mean_trial_B, col="red")
+legend("topright", legend=c("A","B"), col=c("blue","red"), lty=1)

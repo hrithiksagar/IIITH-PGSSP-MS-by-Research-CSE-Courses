@@ -1,0 +1,29 @@
+data <- read.csv("anscombe_50.csv")
+str(data)
+
+#descriptive stats
+library(dplyr)
+
+data %>%
+  group_by(Group) %>%
+  summarise(
+    mean_x = mean(x),
+    mean_y = mean(y),
+    sd_x = sd(x),
+    sd_y = sd(y),
+    cor_xy = cor(x, y)
+  )
+
+#plots
+
+par(mfrow = c(2,2))
+groups <- unique(data$Group)
+
+for(g in groups){
+  subset_data <- subset(data, Group == g)
+  plot(subset_data$x, subset_data$y,
+       main = paste("Group", g),
+       xlab = "X", ylab = "Y",
+       pch = 19)
+  abline(lm(y ~ x, subset_data), col = "red")
+}
