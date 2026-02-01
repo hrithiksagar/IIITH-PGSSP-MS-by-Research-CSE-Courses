@@ -1,0 +1,10 @@
+
+https://karthikv1392.github.io/cs3301_osn_2024/lectures/week-5
+
+https://github.com/torvalds/linux
+
+https://www.computer.org/csdl/magazine/co/2017/11/mco2017110008/13rRUxAStVR
+
+https://pages.cs.wisc.edu/~remzi/OSTEP/threads-locks-usage.pdf
+
+https://greenteapress.com/semaphores/LittleBookOfSemaphores.pdf
