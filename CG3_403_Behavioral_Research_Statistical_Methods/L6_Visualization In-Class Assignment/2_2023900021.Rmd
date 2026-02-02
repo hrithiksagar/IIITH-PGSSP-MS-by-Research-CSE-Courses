@@ -1,0 +1,92 @@
+---
+title: "2_2023900021"
+author: "hrithik.rachakonda@research.iiit.ac.in"
+date: "`r Sys.Date()`"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+# 2 Question: Personality and Motion:
+
+Sheet 2 (Movement Personality Results) contains the Joint Importance values for personality traits like Openness, Conscientiousness, Extraversion, Agreeableness and Neuroticism.Researchers analyzed the movement patterns of individuals and attempted to predict personality scores. They employed machine learning models wherein 12 joint-movement vectors were used to predict personality
+scores. The researchers now want to visualize the results to showcase how each of these joints contributes to predicting each of the five personality scores. Pick two ways to visualize this data and justify why one would be superior.
+
+
+# Answer 2: Personality and Motion
+
+The dataset contains importance values indicating how 12 joint-movement features contribute to predicting five personality traits: Openness, Conscientiousness, Extraversion, Agreeableness, and Neuroticism. The goal is to understand and compare joint contributions across multiple personality outcomes.
+
+Visualization 1: Heatmap (Joint × Personality Trait)
+
+A heatmap visualizes joints on one axis and personality traits on the other, with color intensity representing the importance value. This visualization allows simultaneous comparison across all joints and traits, making it easy to identify patterns such as which joints are consistently important across traits and which joints are trait-specific. The heatmap efficiently represents the full importance matrix and reveals global structure with minimal cognitive load.
+
+Visualization 2: Grouped Bar Plot
+
+A grouped bar plot shows joint importance values for each personality trait using separate bars. This visualization provides precise quantitative comparisons and is intuitive to interpret. However, with many joints and traits, the plot becomes visually cluttered and makes it harder to detect overall patterns or relationships across traits.
+
+Which visualization is superior and why?
+
+The heatmap is the superior visualization for this task. Because the data is high-dimensional (multiple joints predicting multiple traits), the heatmap allows clearer pattern recognition and easier comparison across both dimensions. In contrast, grouped bar plots are less scalable and obscure global relationships due to visual clutter. Therefore, the heatmap provides a more effective and informative representation of joint importance in predicting personality traits.
+
+
+```{r}
+# install.packages(c("readxl","tidyr","ggplot2","dplyr"))
+
+library(readxl)
+library(tidyr)
+library(ggplot2)
+library(dplyr)
+
+xlsx_path <- "BRSM_Visualisation_Assignment.xlsx"
+
+# ---- Load Sheet 2 ----
+df <- read_excel(xlsx_path, sheet = "Movement Personality Results")
+df <- as.data.frame(df)
+
+# Keep only numeric columns (importance values)
+num_cols <- names(df)[sapply(df, is.numeric)]
+df_num <- df[, num_cols, drop = FALSE]
+
+# Long format: Joint x Trait -> Importance
+# If your sheet already has columns like: Joint, Trait, Importance, then skip this and use them directly.
+long <- pivot_longer(
+  df_num,
+  cols = everything(),
+  names_to = "Trait",
+  values_to = "Importance"
+)
+
+# Add joint index (assumes each row corresponds to one joint: 12 rows)
+# If you have an actual joint-name column in df (e.g., "Joint"), replace Joint = ... accordingly.
+long <- long %>%
+  group_by(Trait) %>%
+  mutate(Joint = rep(paste0("J", seq_len(nrow(df_num))), times = 1)) %>%
+  ungroup()
+
+# ---- 1) Heatmap (recommended) ----
+p_heat <- ggplot(long, aes(x = Trait, y = Joint, fill = Importance)) +
+  geom_tile() +
+  labs(title = "Heatmap: Joint Importance per Personality Trait",
+       x = "Personality Trait", y = "Joint") +
+  theme_minimal(base_size = 13)
+
+print(p_heat)
+
+# ---- 2) Grouped bar plot (alternative) ----
+p_bar <- ggplot(long, aes(x = Joint, y = Importance, fill = Trait)) +
+  geom_col(position = "dodge") +
+  labs(title = "Grouped Bar Plot: Joint Importance per Trait",
+       x = "Joint", y = "Importance") +
+  theme_minimal(base_size = 13)
+
+print(p_bar)
+
+
+```
