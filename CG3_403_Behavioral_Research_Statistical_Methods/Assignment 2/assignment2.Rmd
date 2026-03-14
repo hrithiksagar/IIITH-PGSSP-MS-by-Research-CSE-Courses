@@ -1,0 +1,264 @@
+---
+title: "Assignment 2: Multiple Comparisons & Permutation Tests"
+subtitle: "Behavioral Research & Statistical Methods (BRSM)"
+author: "Rachakonda Hrithik Sagar (2023900021)"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: flatly
+    highlight: tango
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, fig.align = "center")
+set.seed(42)
+```
+
+---
+
+# Question 1: Bonferroni & Benjamini-Hochberg Corrections
+
+## Setup
+
+```{r q1-setup}
+p <- c(0.0050, 0.0010, 0.0100, 0.0005, 0.0009, 0.0400, 0.0560, 0.0500,
+       0.0480, 0.0130, 0.0370, 0.0430, 0.0020, 0.0250, 0.1100, 0.0700, 0.0800)
+
+p_sorted   <- sort(p)
+bonferroni <- p.adjust(p_sorted, method = "bonferroni")
+bh         <- p.adjust(p_sorted, method = "BH")
+```
+
+## Results Table
+
+```{r q1-table}
+results_q1 <- data.frame(
+  Rank       = 1:length(p_sorted),
+  Unadjusted = round(p_sorted, 4),
+  Bonferroni = round(bonferroni, 4),
+  BH         = round(bh, 4)
+)
+knitr::kable(results_q1, caption = "Sorted p-values with Bonferroni and BH corrections")
+```
+
+```{r q1-counts}
+cat("Bonferroni significant (adjusted p < 0.05):", sum(bonferroni < 0.05), "\n")
+cat("BH significant (adjusted p < 0.05):",         sum(bh < 0.05), "\n")
+```
+
+## Plot
+
+```{r q1-plot, fig.width=8, fig.height=5}
+plot(1:length(p_sorted), p_sorted,
+     type = "b", col = "black", lwd = 2, pch = 1,
+     ylim = c(0, max(bonferroni, na.rm = TRUE)),
+     xlab = "Sorted Outcomes", ylab = "p-values",
+     main = "P-value Corrections: Bonferroni vs BH vs Unadjusted")
+lines(1:length(bonferroni), bonferroni,
+      type = "b", col = "darkgreen", lwd = 2, lty = 3, pch = 3)
+lines(1:length(bh), bh,
+      type = "b", col = "red", lwd = 2, lty = 2, pch = 2)
+abline(h = 0.05, col = "black", lwd = 2, lty = 2)
+legend("topleft",
+       legend = c("Bonferroni", "Benjamini-Hochberg", "Unadjusted", "alpha = 0.05"),
+       col    = c("darkgreen", "red", "black", "black"),
+       lty    = c(3, 2, 1, 2), pch = c(3, 2, 1, NA),
+       lwd = 2, bg = "white")
+```
+
+## Interpretation
+
+Bonferroni correction is more conservative: it adjusts each p-value by multiplying by the total number of tests (m = 17), controlling the **family-wise error rate (FWER)**. This results in only **4 significant tests**.
+
+Benjamini-Hochberg (BH) controls the **False Discovery Rate (FDR)** instead — a less stringent criterion that allows a small expected proportion of false discoveries among all rejected hypotheses. Accordingly, BH declares **7 tests significant**, making it the less conservative approach.
+
+The results support the claim that Bonferroni is more conservative: the Bonferroni-adjusted p-values are substantially higher than BH-adjusted ones, and Bonferroni rejects fewer hypotheses at α = 0.05.
+
+---
+
+# Question 2: Permutation Test — Mosquito Attractiveness
+
+## Data
+
+The data are from Lefèvre et al. (2010), which examined whether beer consumption increases human attractiveness to mosquitoes.
+
+- **Group 1 (Beer):** n = 25
+- **Group 2 (Water):** n = 18
+
+```{r q2-data}
+# Read from the local CSV in the assignment folder
+mosquito_file <- "assignemnt_2_data_BRSM_Results Visualization(Mosquito).csv"
+
+if (file.exists(mosquito_file)) {
+  mosq <- read.csv(mosquito_file)
+  cat("Columns found:", paste(colnames(mosq), collapse=", "), "
+")
+  if (all(c("Beer", "Water") %in% colnames(mosq))) {
+    beer  <- na.omit(mosq$Beer)
+    water <- na.omit(mosq$Water)
+  } else {
+    grp   <- mosq[[1]]
+    count <- mosq[[2]]
+    beer  <- count[grp == unique(grp)[1]]
+    water <- count[grp == unique(grp)[2]]
+  }
+} else {
+  # Fallback: published values from Lefevre et al. (2010)
+  beer  <- c(27,19,20,20,23,17,21,24,31,26,28,20,27,19,25,31,24,28,24,29,21,21,18,27,20)
+  water <- c(21,19,13,22,15,22,15,22,20,12,24,24,21,19,18,16,23,20)
+}
+
+combined <- c(beer, water)
+n_beer   <- length(beer)
+n_water  <- length(water)
+n_total  <- length(combined)
+n_iter   <- 10000
+
+cat("Beer  group: n =", n_beer,  "| median =", median(beer),  "| mean =", round(mean(beer), 2),  "\n")
+cat("Water group: n =", n_water, "| median =", median(water), "| mean =", round(mean(water), 2), "\n")
+```
+
+## Part (a): Difference in Medians — Directional HA
+
+**H₀:** median(beer) ≤ median(water)  
+**Hₐ (directional):** median(beer) > median(water)
+
+```{r q2a-permutation}
+obs_diff_median <- median(beer) - median(water)
+cat("Observed difference in medians:", obs_diff_median, "\n")
+
+perm_diffs <- numeric(n_iter)
+for (i in 1:n_iter) {
+  shuf          <- sample(combined, n_total, replace = FALSE)
+  perm_diffs[i] <- median(shuf[1:n_beer]) - median(shuf[(n_beer + 1):n_total])
+}
+
+p_val_2a <- mean(perm_diffs >= obs_diff_median)
+cat("One-tailed p-value (median diff):", p_val_2a, "\n")
+```
+
+```{r q2a-plot, fig.width=8, fig.height=5}
+hist(perm_diffs, breaks = 40, col = "lightblue", border = "white",
+     main = "Permutation Distribution — Difference in Medians",
+     xlab = "Permuted Median(beer) - Median(water)")
+abline(v = obs_diff_median, col = "red", lwd = 2, lty = 2)
+legend("topright",
+       legend = c(paste("Observed diff =", obs_diff_median),
+                  paste("p-value =", p_val_2a)),
+       col = "red", lty = 2, lwd = 2, bg = "white")
+```
+
+**Interpretation:** The observed difference in medians is **`r obs_diff_median`**. The one-tailed permutation p-value is **`r p_val_2a`**, which is less than 0.05. We reject H₀ and conclude that beer consumption significantly increases mosquito attractiveness.
+
+## Part (b): t-Statistic — Directional HA
+
+**H₀:** mean(beer) ≤ mean(water)  
+**Hₐ (directional):** mean(beer) > mean(water)
+
+```{r q2b-permutation}
+obs_t <- t.test(beer, water, var.equal = FALSE)$statistic
+cat("Observed t-statistic:", round(obs_t, 4), "\n")
+
+perm_t <- numeric(n_iter)
+for (i in 1:n_iter) {
+  shuf      <- sample(combined, n_total, replace = FALSE)
+  g1        <- shuf[1:n_beer]
+  g2        <- shuf[(n_beer + 1):n_total]
+  perm_t[i] <- t.test(g1, g2, var.equal = FALSE)$statistic
+}
+
+p_val_2b <- mean(perm_t >= obs_t)
+cat("One-tailed p-value (t-stat):", p_val_2b, "\n")
+```
+
+```{r q2b-plot, fig.width=8, fig.height=5}
+hist(perm_t, breaks = 40, col = "lightyellow", border = "white",
+     main = "Permutation Distribution — t-Statistic",
+     xlab = "Permuted t-statistic")
+abline(v = obs_t, col = "red", lwd = 2, lty = 2)
+legend("topright",
+       legend = c(paste("Observed t =", round(obs_t, 3)),
+                  paste("p-value =", p_val_2b)),
+       col = "red", lty = 2, lwd = 2, bg = "white")
+```
+
+**Interpretation:** The observed t-statistic is **`r round(obs_t, 4)`**. The one-tailed permutation p-value is **`r p_val_2b`**, strongly significant. The t-statistic gives a more powerful test here as it uses all information in the data (means and variances), not just ranks.
+
+## Part (c): Non-directional Hₐ (Two-tailed)
+
+**H₀:** No difference between groups  
+**Hₐ (non-directional):** There is *some* difference (either direction)
+
+```{r q2c}
+p_val_2a_two <- mean(abs(perm_diffs) >= abs(obs_diff_median))
+p_val_2b_two <- mean(abs(perm_t)     >= abs(obs_t))
+
+cat("Two-tailed p-value (median diff):", p_val_2a_two, "\n")
+cat("Two-tailed p-value (t-stat):     ", p_val_2b_two, "\n")
+```
+
+**Interpretation:** Under a non-directional Hₐ, both test statistics remain significant (p < 0.05). The two-tailed p-values are approximately double the one-tailed values (as expected), but the evidence is still strong enough to reject H₀ in both cases.
+
+---
+
+# Question 3: Permutation Test — Correlation of IQ and Test Scores
+
+## Load Data
+
+```{r q3-data}
+library(readxl)
+iq_data  <- read_excel("assignment_2_IQ.xlsx")
+colnames(iq_data) <- c("ID", "GPA", "IQ", "GENDER", "TESTSCORE")
+iq_vals  <- iq_data$IQ
+ts_vals  <- iq_data$TESTSCORE
+
+cat("n =", nrow(iq_data), "\n")
+cat("IQ range:        ", range(iq_vals),  "\n")
+cat("TestScore range: ", range(ts_vals), "\n")
+```
+
+## Observed Correlation
+
+```{r q3-cor}
+obs_cor <- cor(iq_vals, ts_vals, method = "pearson")
+cat("Observed Pearson r:", round(obs_cor, 4), "\n")
+```
+
+## Permutation Test
+
+**H₀:** No correlation between IQ and test scores (ρ = 0)  
+**Hₐ (non-directional):** There is a correlation (ρ ≠ 0)
+
+```{r q3-permutation}
+perm_cor <- numeric(n_iter)
+for (i in 1:n_iter) {
+  perm_cor[i] <- cor(iq_vals, sample(ts_vals), method = "pearson")
+}
+
+p_val_3 <- mean(abs(perm_cor) >= abs(obs_cor))
+cat("Two-tailed permutation p-value:", p_val_3, "\n")
+cat("Decision:", ifelse(p_val_3 < 0.05,
+                        "REJECT H0 — significant correlation exists",
+                        "FAIL TO REJECT H0"), "\n")
+```
+
+```{r q3-plot, fig.width=8, fig.height=5}
+hist(perm_cor, breaks = 40, col = "lightgreen", border = "white",
+     main = "Permutation Distribution — Pearson Correlation (IQ vs TestScore)",
+     xlab = "Permuted Correlation (r)")
+abline(v =  obs_cor, col = "red", lwd = 2, lty = 2)
+abline(v = -obs_cor, col = "red", lwd = 2, lty = 2)
+legend("topright",
+       legend = c(paste("Observed r =", round(obs_cor, 3)),
+                  paste("p-value =", p_val_3)),
+       col = "red", lty = 2, lwd = 2, bg = "white")
+```
+
+## Interpretation
+
+The observed Pearson correlation between IQ and test scores is **r = `r round(obs_cor, 4)`**, indicating a moderate positive relationship. The permutation p-value is **`r p_val_3`** — none of the 10,000 random permutations produced a correlation as extreme as the observed one.
+
+**Conclusion:** We **reject H₀**. There is a statistically significant positive correlation between IQ and test scores (p < 0.05). Students with higher IQ scores tend to obtain higher test scores in this sample.
