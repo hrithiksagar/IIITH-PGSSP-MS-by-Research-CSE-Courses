@@ -1,15 +1,18 @@
 ---
-title: "Assignment 2: Multiple Comparisons & Permutation Tests"
-subtitle: "Behavioral Research & Statistical Methods (BRSM)"
+title: 'Assignment 2: Multiple Comparisons & Permutation Tests'
 author: "Rachakonda Hrithik Sagar (2023900021)"
 date: "`r Sys.Date()`"
 output:
+  pdf_document:
+    toc: true
+    latex_engine: xelatex
   html_document:
     toc: true
     toc_float: true
     theme: flatly
     highlight: tango
     number_sections: true
+subtitle: Behavioral Research & Statistical Methods (BRSM)
 ---
 
 ```{r setup, include=FALSE}
@@ -93,18 +96,10 @@ The data are from Lefèvre et al. (2010), which examined whether beer consumptio
 mosquito_file <- "assignemnt_2_data_BRSM_Results Visualization(Mosquito).csv"
 
 if (file.exists(mosquito_file)) {
-  mosq <- read.csv(mosquito_file)
-  cat("Columns found:", paste(colnames(mosq), collapse=", "), "
-")
-  if (all(c("Beer", "Water") %in% colnames(mosq))) {
-    beer  <- na.omit(mosq$Beer)
-    water <- na.omit(mosq$Water)
-  } else {
-    grp   <- mosq[[1]]
-    count <- mosq[[2]]
-    beer  <- count[grp == unique(grp)[1]]
-    water <- count[grp == unique(grp)[2]]
-  }
+  mosq  <- read.csv(mosquito_file, fileEncoding = "UTF-8-BOM")
+  mosq  <- mosq[!is.na(mosq$No_of_Mosquitoes), ]
+  beer  <- mosq$No_of_Mosquitoes[mosq$Group == "Beer"]
+  water <- mosq$No_of_Mosquitoes[mosq$Group == "Water"]
 } else {
   # Fallback: published values from Lefevre et al. (2010)
   beer  <- c(27,19,20,20,23,17,21,24,31,26,28,20,27,19,25,31,24,28,24,29,21,21,18,27,20)
