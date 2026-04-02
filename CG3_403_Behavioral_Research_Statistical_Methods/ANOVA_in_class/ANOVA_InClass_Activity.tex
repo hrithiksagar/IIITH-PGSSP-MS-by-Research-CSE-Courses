@@ -1,0 +1,894 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\documentclass[
+]{article}
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\usepackage{graphicx}
+\makeatletter
+\newsavebox\pandoc@box
+\newcommand*\pandocbounded[1]{% scales image to fit in text height/width
+  \sbox\pandoc@box{#1}%
+  \Gscale@div\@tempa{\textheight}{\dimexpr\ht\pandoc@box+\dp\pandoc@box\relax}%
+  \Gscale@div\@tempb{\linewidth}{\wd\pandoc@box}%
+  \ifdim\@tempb\p@<\@tempa\p@\let\@tempa\@tempb\fi% select the smaller of both
+  \ifdim\@tempa\p@<\p@\scalebox{\@tempa}{\usebox\pandoc@box}%
+  \else\usebox{\pandoc@box}%
+  \fi%
+}
+% Set default figure placement to htbp
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdftitle={ANOVA In-Class Activity},
+  pdfauthor={BRSM},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{ANOVA In-Class Activity}
+\author{BRSM}
+\date{2026-04-02}
+
+\begin{document}
+\maketitle
+
+{
+\setcounter{tocdepth}{2}
+\tableofcontents
+}
+\section{Overview of Steps (from
+slide)}\label{overview-of-steps-from-slide}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Check for normality\\
+\item
+  Check homogeneity of variances → \textbf{Factorial / Independent
+  ANOVA}\\
+  Check sphericity of variances → \textbf{Repeated Measures ANOVA}\\
+\item
+  Choose the appropriate test\\
+\item
+  Only if F is significant → run post-hoc test\\
+\item
+  Report effect size\\
+\item
+  Plot the data
+\end{enumerate}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{Q1: Memory Scores}\label{q1-memory-scores}
+
+\textbf{Do children with neurodevelopmental disorders have lower memory
+scores?}\\
+Design: \textbf{One-Way Independent ANOVA} (different participants per
+group)
+
+\subsection{Data}\label{data}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{regular  }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\DecValTok{24}\NormalTok{, }\DecValTok{22}\NormalTok{, }\DecValTok{19}\NormalTok{, }\DecValTok{22}\NormalTok{, }\DecValTok{28}\NormalTok{, }\DecValTok{26}\NormalTok{, }\DecValTok{28}\NormalTok{, }\DecValTok{24}\NormalTok{, }\DecValTok{30}\NormalTok{, }\DecValTok{29}\NormalTok{, }\DecValTok{25}\NormalTok{, }\DecValTok{20}\NormalTok{, }\DecValTok{17}\NormalTok{, }\DecValTok{19}\NormalTok{, }\DecValTok{18}\NormalTok{, }\DecValTok{26}\NormalTok{, }\DecValTok{27}\NormalTok{, }\DecValTok{24}\NormalTok{, }\DecValTok{27}\NormalTok{, }\DecValTok{27}\NormalTok{)}
+\NormalTok{autism   }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\DecValTok{15}\NormalTok{, }\DecValTok{2}\NormalTok{, }\DecValTok{1}\NormalTok{, }\DecValTok{21}\NormalTok{, }\DecValTok{3}\NormalTok{, }\DecValTok{10}\NormalTok{, }\DecValTok{9}\NormalTok{, }\DecValTok{8}\NormalTok{, }\DecValTok{3}\NormalTok{, }\DecValTok{7}\NormalTok{, }\DecValTok{6}\NormalTok{, }\DecValTok{18}\NormalTok{, }\DecValTok{2}\NormalTok{, }\DecValTok{5}\NormalTok{, }\DecValTok{2}\NormalTok{, }\DecValTok{5}\NormalTok{, }\DecValTok{0}\NormalTok{, }\DecValTok{27}\NormalTok{)}
+\NormalTok{epilepsy }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\DecValTok{30}\NormalTok{, }\DecValTok{15}\NormalTok{, }\DecValTok{34}\NormalTok{, }\DecValTok{26}\NormalTok{, }\DecValTok{14}\NormalTok{, }\DecValTok{28}\NormalTok{, }\DecValTok{17}\NormalTok{, }\DecValTok{29}\NormalTok{, }\DecValTok{25}\NormalTok{, }\DecValTok{11}\NormalTok{, }\DecValTok{37}\NormalTok{, }\DecValTok{36}\NormalTok{, }\DecValTok{34}\NormalTok{, }\DecValTok{22}\NormalTok{, }\DecValTok{18}\NormalTok{, }\DecValTok{5}\NormalTok{, }\DecValTok{12}\NormalTok{, }\DecValTok{10}\NormalTok{, }\DecValTok{15}\NormalTok{)}
+
+\CommentTok{\# Combine into a data frame}
+\NormalTok{score }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(regular, autism, epilepsy)}
+\NormalTok{group }\OtherTok{\textless{}{-}} \FunctionTok{factor}\NormalTok{(}\FunctionTok{rep}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\StringTok{"Regular"}\NormalTok{, }\StringTok{"Autism"}\NormalTok{, }\StringTok{"Epilepsy"}\NormalTok{),}
+                    \AttributeTok{times =} \FunctionTok{c}\NormalTok{(}\FunctionTok{length}\NormalTok{(regular), }\FunctionTok{length}\NormalTok{(autism), }\FunctionTok{length}\NormalTok{(epilepsy))))}
+\NormalTok{df }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(score, group)}
+
+\CommentTok{\# Descriptive statistics per group}
+\FunctionTok{tapply}\NormalTok{(df}\SpecialCharTok{$}\NormalTok{score, df}\SpecialCharTok{$}\NormalTok{group, }\ControlFlowTok{function}\NormalTok{(x) }\FunctionTok{round}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\AttributeTok{n=}\FunctionTok{length}\NormalTok{(x), }\AttributeTok{mean=}\FunctionTok{mean}\NormalTok{(x), }\AttributeTok{sd=}\FunctionTok{sd}\NormalTok{(x)), }\DecValTok{2}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## $Autism
+##     n  mean    sd 
+## 18.00  8.00  7.58 
+## 
+## $Epilepsy
+##     n  mean    sd 
+## 19.00 22.00  9.83 
+## 
+## $Regular
+##     n  mean    sd 
+## 20.00 24.10  3.89
+\end{verbatim}
+
+\subsection{Step 1: Check Normality (Shapiro-Wilk + Q-Q
+Plots)}\label{step-1-check-normality-shapiro-wilk-q-q-plots}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Shapiro{-}Wilk test per group}
+\ControlFlowTok{for}\NormalTok{ (g }\ControlFlowTok{in} \FunctionTok{levels}\NormalTok{(df}\SpecialCharTok{$}\NormalTok{group)) \{}
+\NormalTok{  x }\OtherTok{\textless{}{-}}\NormalTok{ df}\SpecialCharTok{$}\NormalTok{score[df}\SpecialCharTok{$}\NormalTok{group }\SpecialCharTok{==}\NormalTok{ g]}
+\NormalTok{  sw }\OtherTok{\textless{}{-}} \FunctionTok{shapiro.test}\NormalTok{(x)}
+  \FunctionTok{cat}\NormalTok{(g, }\StringTok{": W ="}\NormalTok{, }\FunctionTok{round}\NormalTok{(sw}\SpecialCharTok{$}\NormalTok{statistic, }\DecValTok{3}\NormalTok{), }\StringTok{", p ="}\NormalTok{, }\FunctionTok{round}\NormalTok{(sw}\SpecialCharTok{$}\NormalTok{p.value, }\DecValTok{3}\NormalTok{),}
+      \FunctionTok{ifelse}\NormalTok{(sw}\SpecialCharTok{$}\NormalTok{p.value }\SpecialCharTok{\textgreater{}} \FloatTok{0.05}\NormalTok{, }\StringTok{"{-}\textgreater{} Normal"}\NormalTok{, }\StringTok{"{-}\textgreater{} NOT Normal"}\NormalTok{), }\StringTok{"}\SpecialCharTok{\textbackslash{}n}\StringTok{"}\NormalTok{)}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Autism : W = 0.856 , p = 0.011 -> NOT Normal 
+## Epilepsy : W = 0.947 , p = 0.347 -> Normal 
+## Regular : W = 0.942 , p = 0.262 -> Normal
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Q{-}Q plots}
+\FunctionTok{par}\NormalTok{(}\AttributeTok{mfrow =} \FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{3}\NormalTok{))}
+\ControlFlowTok{for}\NormalTok{ (g }\ControlFlowTok{in} \FunctionTok{levels}\NormalTok{(df}\SpecialCharTok{$}\NormalTok{group)) \{}
+\NormalTok{  x }\OtherTok{\textless{}{-}}\NormalTok{ df}\SpecialCharTok{$}\NormalTok{score[df}\SpecialCharTok{$}\NormalTok{group }\SpecialCharTok{==}\NormalTok{ g]}
+  \FunctionTok{qqnorm}\NormalTok{(x, }\AttributeTok{main =} \FunctionTok{paste}\NormalTok{(}\StringTok{"Q{-}Q:"}\NormalTok{, g))}
+  \FunctionTok{qqline}\NormalTok{(x, }\AttributeTok{col =} \StringTok{"red"}\NormalTok{)}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{ANOVA_InClass_Activity_files/figure-latex/unnamed-chunk-2-1.pdf}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{par}\NormalTok{(}\AttributeTok{mfrow =} \FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\subsection{Step 2: Check Homogeneity of
+Variances}\label{step-2-check-homogeneity-of-variances}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Bartlett\textquotesingle{}s test (assumes normality)}
+\FunctionTok{bartlett.test}\NormalTok{(score }\SpecialCharTok{\textasciitilde{}}\NormalTok{ group, }\AttributeTok{data =}\NormalTok{ df)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##  Bartlett test of homogeneity of variances
+## 
+## data:  score by group
+## Bartlett's K-squared = 13.889, df = 2, p-value = 0.0009641
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Levene\textquotesingle{}s test (robust to non{-}normality) {-} manual, no extra package}
+\NormalTok{levene\_manual }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(y, group) \{}
+\NormalTok{  group\_medians }\OtherTok{\textless{}{-}} \FunctionTok{tapply}\NormalTok{(y, group, median)      }\CommentTok{\# median{-}based for robustness}
+\NormalTok{  z }\OtherTok{\textless{}{-}} \FunctionTok{abs}\NormalTok{(y }\SpecialCharTok{{-}}\NormalTok{ group\_medians[group])             }\CommentTok{\# absolute deviations}
+  \FunctionTok{anova}\NormalTok{(}\FunctionTok{lm}\NormalTok{(z }\SpecialCharTok{\textasciitilde{}}\NormalTok{ group))}
+\NormalTok{\}}
+\FunctionTok{levene\_manual}\NormalTok{(df}\SpecialCharTok{$}\NormalTok{score, df}\SpecialCharTok{$}\NormalTok{group)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Analysis of Variance Table
+## 
+## Response: z
+##           Df  Sum Sq Mean Sq F value   Pr(>F)   
+## group      2  277.93 138.967  7.4901 0.001346 **
+## Residuals 54 1001.88  18.553                    
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+
+\begin{quote}
+If p \textgreater{} .05: variances are homogeneous → proceed with
+standard ANOVA
+\end{quote}
+
+\subsection{Step 3: One-Way ANOVA}\label{step-3-one-way-anova}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{model }\OtherTok{\textless{}{-}} \FunctionTok{aov}\NormalTok{(score }\SpecialCharTok{\textasciitilde{}}\NormalTok{ group, }\AttributeTok{data =}\NormalTok{ df)}
+\FunctionTok{summary}\NormalTok{(model)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##             Df Sum Sq Mean Sq F value   Pr(>F)    
+## group        2   2842  1421.3   25.53 1.57e-08 ***
+## Residuals   54   3006    55.7                     
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+
+\subsection{Step 4: Effect Size (η² ---
+Eta-squared)}\label{step-4-effect-size-ux3b7uxb2-eta-squared}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# eta{-}squared = SS\_between / SS\_total}
+\NormalTok{ss      }\OtherTok{\textless{}{-}} \FunctionTok{summary}\NormalTok{(model)[[}\DecValTok{1}\NormalTok{]][[}\StringTok{"Sum Sq"}\NormalTok{]]}
+\NormalTok{eta\_sq  }\OtherTok{\textless{}{-}}\NormalTok{ ss[}\DecValTok{1}\NormalTok{] }\SpecialCharTok{/} \FunctionTok{sum}\NormalTok{(ss)}
+\FunctionTok{cat}\NormalTok{(}\StringTok{"Eta{-}squared (eta\^{}2) ="}\NormalTok{, }\FunctionTok{round}\NormalTok{(eta\_sq, }\DecValTok{3}\NormalTok{), }\StringTok{"}\SpecialCharTok{\textbackslash{}n}\StringTok{"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Eta-squared (eta^2) = 0.486
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{cat}\NormalTok{(}\StringTok{"Benchmarks: small = 0.01, medium = 0.06, large = 0.14}\SpecialCharTok{\textbackslash{}n}\StringTok{"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Benchmarks: small = 0.01, medium = 0.06, large = 0.14
+\end{verbatim}
+
+\subsection{Step 5: Post-Hoc Test (Tukey HSD --- only if F
+significant)}\label{step-5-post-hoc-test-tukey-hsd-only-if-f-significant}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{TukeyHSD}\NormalTok{(model)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##   Tukey multiple comparisons of means
+##     95% family-wise confidence level
+## 
+## Fit: aov(formula = score ~ group, data = df)
+## 
+## $group
+##                  diff       lwr       upr     p adj
+## Epilepsy-Autism  14.0  8.085948 19.914052 0.0000015
+## Regular-Autism   16.1 10.258319 21.941681 0.0000000
+## Regular-Epilepsy  2.1 -3.660203  7.860203 0.6560029
+\end{verbatim}
+
+\subsection{Step 6: Plot}\label{step-6-plot}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{boxplot}\NormalTok{(score }\SpecialCharTok{\textasciitilde{}}\NormalTok{ group, }\AttributeTok{data =}\NormalTok{ df,}
+        \AttributeTok{col  =} \FunctionTok{c}\NormalTok{(}\StringTok{"lightblue"}\NormalTok{, }\StringTok{"lightgreen"}\NormalTok{, }\StringTok{"lightyellow"}\NormalTok{),}
+        \AttributeTok{main =} \StringTok{"Memory Scores by Group"}\NormalTok{,}
+        \AttributeTok{xlab =} \StringTok{"Group"}\NormalTok{, }\AttributeTok{ylab =} \StringTok{"Memory Score"}\NormalTok{, }\AttributeTok{las =} \DecValTok{1}\NormalTok{)}
+
+\CommentTok{\# Mark group means}
+\NormalTok{means }\OtherTok{\textless{}{-}} \FunctionTok{tapply}\NormalTok{(df}\SpecialCharTok{$}\NormalTok{score, df}\SpecialCharTok{$}\NormalTok{group, mean)}
+\FunctionTok{points}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\FunctionTok{length}\NormalTok{(means), means, }\AttributeTok{pch =} \DecValTok{18}\NormalTok{, }\AttributeTok{col =} \StringTok{"red"}\NormalTok{, }\AttributeTok{cex =} \FloatTok{1.5}\NormalTok{)}
+\FunctionTok{legend}\NormalTok{(}\StringTok{"topright"}\NormalTok{, }\AttributeTok{legend =} \StringTok{"Group mean"}\NormalTok{, }\AttributeTok{pch =} \DecValTok{18}\NormalTok{, }\AttributeTok{col =} \StringTok{"red"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{ANOVA_InClass_Activity_files/figure-latex/unnamed-chunk-7-1.pdf}}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{Q2: Driving Ability}\label{q2-driving-ability}
+
+\textbf{What extent of sleep deprivation affects driving ability?}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{night1 }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\DecValTok{15}\NormalTok{, }\DecValTok{18}\NormalTok{, }\DecValTok{20}\NormalTok{, }\DecValTok{15}\NormalTok{, }\DecValTok{12}\NormalTok{, }\DecValTok{18}\NormalTok{, }\DecValTok{16}\NormalTok{, }\DecValTok{17}\NormalTok{, }\DecValTok{14}\NormalTok{, }\DecValTok{19}\NormalTok{, }\DecValTok{20}\NormalTok{, }\DecValTok{15}\NormalTok{, }\DecValTok{16}\NormalTok{, }\DecValTok{18}\NormalTok{, }\DecValTok{19}\NormalTok{, }\DecValTok{15}\NormalTok{, }\DecValTok{17}\NormalTok{, }\DecValTok{18}\NormalTok{, }\DecValTok{19}\NormalTok{, }\DecValTok{15}\NormalTok{)}
+\NormalTok{night2 }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\DecValTok{10}\NormalTok{, }\DecValTok{16}\NormalTok{, }\DecValTok{13}\NormalTok{, }\DecValTok{11}\NormalTok{,  }\DecValTok{9}\NormalTok{, }\DecValTok{14}\NormalTok{, }\DecValTok{13}\NormalTok{, }\DecValTok{14}\NormalTok{, }\DecValTok{15}\NormalTok{, }\DecValTok{14}\NormalTok{, }\DecValTok{12}\NormalTok{, }\DecValTok{13}\NormalTok{, }\DecValTok{14}\NormalTok{, }\DecValTok{12}\NormalTok{, }\DecValTok{11}\NormalTok{, }\DecValTok{15}\NormalTok{, }\DecValTok{14}\NormalTok{, }\DecValTok{16}\NormalTok{, }\DecValTok{11}\NormalTok{, }\DecValTok{14}\NormalTok{)}
+\NormalTok{night3 }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{( }\DecValTok{5}\NormalTok{,  }\DecValTok{3}\NormalTok{,  }\DecValTok{9}\NormalTok{,  }\DecValTok{6}\NormalTok{,  }\DecValTok{4}\NormalTok{,  }\DecValTok{7}\NormalTok{,  }\DecValTok{8}\NormalTok{,  }\DecValTok{2}\NormalTok{,  }\DecValTok{4}\NormalTok{,  }\DecValTok{6}\NormalTok{,  }\DecValTok{9}\NormalTok{,  }\DecValTok{5}\NormalTok{,  }\DecValTok{3}\NormalTok{,  }\DecValTok{7}\NormalTok{,  }\DecValTok{1}\NormalTok{,  }\DecValTok{8}\NormalTok{,  }\DecValTok{7}\NormalTok{,  }\DecValTok{3}\NormalTok{,  }\DecValTok{7}\NormalTok{,  }\DecValTok{3}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{Condition 1: Same participants in all 3 groups → Repeated
+Measures
+ANOVA}\label{condition-1-same-participants-in-all-3-groups-repeated-measures-anova}
+
+\subsubsection{Step 1: Normality}\label{step-1-normality}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{data\_list }\OtherTok{\textless{}{-}} \FunctionTok{list}\NormalTok{(}\StringTok{"1 Night"} \OtherTok{=}\NormalTok{ night1, }\StringTok{"2 Nights"} \OtherTok{=}\NormalTok{ night2, }\StringTok{"3 Nights"} \OtherTok{=}\NormalTok{ night3)}
+\ControlFlowTok{for}\NormalTok{ (nm }\ControlFlowTok{in} \FunctionTok{names}\NormalTok{(data\_list)) \{}
+\NormalTok{  sw }\OtherTok{\textless{}{-}} \FunctionTok{shapiro.test}\NormalTok{(data\_list[[nm]])}
+  \FunctionTok{cat}\NormalTok{(nm, }\StringTok{": W ="}\NormalTok{, }\FunctionTok{round}\NormalTok{(sw}\SpecialCharTok{$}\NormalTok{statistic, }\DecValTok{3}\NormalTok{), }\StringTok{", p ="}\NormalTok{, }\FunctionTok{round}\NormalTok{(sw}\SpecialCharTok{$}\NormalTok{p.value, }\DecValTok{3}\NormalTok{),}
+      \FunctionTok{ifelse}\NormalTok{(sw}\SpecialCharTok{$}\NormalTok{p.value }\SpecialCharTok{\textgreater{}} \FloatTok{0.05}\NormalTok{, }\StringTok{"{-}\textgreater{} Normal"}\NormalTok{, }\StringTok{"{-}\textgreater{} NOT Normal"}\NormalTok{), }\StringTok{"}\SpecialCharTok{\textbackslash{}n}\StringTok{"}\NormalTok{)}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 1 Night : W = 0.945 , p = 0.295 -> Normal 
+## 2 Nights : W = 0.949 , p = 0.345 -> Normal 
+## 3 Nights : W = 0.948 , p = 0.333 -> Normal
+\end{verbatim}
+
+\subsubsection{Step 2: Sphericity (Mauchly's
+Test)}\label{step-2-sphericity-mauchlys-test}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# mauchly.test() is built into base R}
+\NormalTok{Y     }\OtherTok{\textless{}{-}} \FunctionTok{cbind}\NormalTok{(night1, night2, night3)}
+\NormalTok{idata }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}\AttributeTok{deprivation =} \FunctionTok{factor}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\StringTok{"1\_Night"}\NormalTok{, }\StringTok{"2\_Nights"}\NormalTok{, }\StringTok{"3\_Nights"}\NormalTok{)))}
+\NormalTok{fit   }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(Y }\SpecialCharTok{\textasciitilde{}} \DecValTok{1}\NormalTok{)}
+\FunctionTok{mauchly.test}\NormalTok{(fit, }\AttributeTok{X =} \SpecialCharTok{\textasciitilde{}} \DecValTok{1}\NormalTok{, }\AttributeTok{idata =}\NormalTok{ idata)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##  Mauchly's test of sphericity
+##  Contrasts orthogonal to
+##  ~1
+## 
+## 
+## data:  SSD matrix from lm(formula = Y ~ 1)
+## W = 0.93042, p-value = 0.5225
+\end{verbatim}
+
+\begin{quote}
+If p \textgreater{} .05: sphericity holds → standard RM-ANOVA F values
+are valid\\
+If p \textless{} .05: sphericity violated → apply Greenhouse-Geisser
+correction (epsilon correction on df)
+\end{quote}
+
+\subsubsection{Step 3: Repeated Measures
+ANOVA}\label{step-3-repeated-measures-anova}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{n     }\OtherTok{\textless{}{-}} \FunctionTok{length}\NormalTok{(night1)}
+\NormalTok{df\_rm }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}
+  \AttributeTok{subject     =} \FunctionTok{factor}\NormalTok{(}\FunctionTok{rep}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\NormalTok{n, }\DecValTok{3}\NormalTok{)),}
+  \AttributeTok{deprivation =} \FunctionTok{factor}\NormalTok{(}\FunctionTok{rep}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\StringTok{"1\_Night"}\NormalTok{,}\StringTok{"2\_Nights"}\NormalTok{,}\StringTok{"3\_Nights"}\NormalTok{), }\AttributeTok{each =}\NormalTok{ n),}
+                       \AttributeTok{levels =} \FunctionTok{c}\NormalTok{(}\StringTok{"1\_Night"}\NormalTok{,}\StringTok{"2\_Nights"}\NormalTok{,}\StringTok{"3\_Nights"}\NormalTok{)),}
+  \AttributeTok{score       =} \FunctionTok{c}\NormalTok{(night1, night2, night3)}
+\NormalTok{)}
+
+\CommentTok{\# Error(subject/deprivation) partitions within{-}subject variance}
+\NormalTok{rm\_model }\OtherTok{\textless{}{-}} \FunctionTok{aov}\NormalTok{(score }\SpecialCharTok{\textasciitilde{}}\NormalTok{ deprivation }\SpecialCharTok{+} \FunctionTok{Error}\NormalTok{(subject}\SpecialCharTok{/}\NormalTok{deprivation), }\AttributeTok{data =}\NormalTok{ df\_rm)}
+\FunctionTok{summary}\NormalTok{(rm\_model)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Error: subject
+##           Df Sum Sq Mean Sq F value Pr(>F)
+## Residuals 19  109.7   5.775               
+## 
+## Error: subject:deprivation
+##             Df Sum Sq Mean Sq F value Pr(>F)    
+## deprivation  2   1363   681.5   162.9 <2e-16 ***
+## Residuals   38    159     4.2                   
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+
+\subsubsection{Step 4: Effect Size (Partial
+η²)}\label{step-4-effect-size-partial-ux3b7uxb2}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{rm\_sum }\OtherTok{\textless{}{-}} \FunctionTok{summary}\NormalTok{(rm\_model)}
+\NormalTok{ss\_dep }\OtherTok{\textless{}{-}}\NormalTok{ rm\_sum}\SpecialCharTok{$}\StringTok{\textasciigrave{}}\AttributeTok{Error: subject:deprivation}\StringTok{\textasciigrave{}}\NormalTok{[[}\DecValTok{1}\NormalTok{]][}\StringTok{"deprivation"}\NormalTok{, }\StringTok{"Sum Sq"}\NormalTok{]}
+\NormalTok{ss\_res }\OtherTok{\textless{}{-}}\NormalTok{ rm\_sum}\SpecialCharTok{$}\StringTok{\textasciigrave{}}\AttributeTok{Error: subject:deprivation}\StringTok{\textasciigrave{}}\NormalTok{[[}\DecValTok{1}\NormalTok{]][}\StringTok{"Residuals"}\NormalTok{,  }\StringTok{"Sum Sq"}\NormalTok{]}
+\NormalTok{eta\_rm }\OtherTok{\textless{}{-}}\NormalTok{ ss\_dep }\SpecialCharTok{/}\NormalTok{ (ss\_dep }\SpecialCharTok{+}\NormalTok{ ss\_res)}
+\FunctionTok{cat}\NormalTok{(}\StringTok{"Partial Eta{-}squared ="}\NormalTok{, }\FunctionTok{round}\NormalTok{(eta\_rm, }\DecValTok{3}\NormalTok{), }\StringTok{"}\SpecialCharTok{\textbackslash{}n}\StringTok{"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Partial Eta-squared = 0.896
+\end{verbatim}
+
+\subsubsection{Step 5: Post-Hoc (Bonferroni-corrected paired
+t-tests)}\label{step-5-post-hoc-bonferroni-corrected-paired-t-tests}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{pairwise.t.test}\NormalTok{(df\_rm}\SpecialCharTok{$}\NormalTok{score, df\_rm}\SpecialCharTok{$}\NormalTok{deprivation,}
+                \AttributeTok{paired          =} \ConstantTok{TRUE}\NormalTok{,}
+                \AttributeTok{p.adjust.method =} \StringTok{"bonferroni"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##  Pairwise comparisons using paired t tests 
+## 
+## data:  df_rm$score and df_rm$deprivation 
+## 
+##          1_Night 2_Nights
+## 2_Nights 1.2e-05 -       
+## 3_Nights 3.8e-13 6.0e-09 
+## 
+## P value adjustment method: bonferroni
+\end{verbatim}
+
+\subsubsection{Step 6: Plot}\label{step-6-plot-1}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{means\_rm }\OtherTok{\textless{}{-}} \FunctionTok{tapply}\NormalTok{(df\_rm}\SpecialCharTok{$}\NormalTok{score, df\_rm}\SpecialCharTok{$}\NormalTok{deprivation, mean)}
+\NormalTok{se\_rm    }\OtherTok{\textless{}{-}} \FunctionTok{tapply}\NormalTok{(df\_rm}\SpecialCharTok{$}\NormalTok{score, df\_rm}\SpecialCharTok{$}\NormalTok{deprivation,}
+                   \ControlFlowTok{function}\NormalTok{(x) }\FunctionTok{sd}\NormalTok{(x) }\SpecialCharTok{/} \FunctionTok{sqrt}\NormalTok{(}\FunctionTok{length}\NormalTok{(x)))}
+
+\FunctionTok{plot}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\DecValTok{3}\NormalTok{, means\_rm, }\AttributeTok{type =} \StringTok{"b"}\NormalTok{, }\AttributeTok{pch =} \DecValTok{19}\NormalTok{, }\AttributeTok{col =} \StringTok{"steelblue"}\NormalTok{,}
+     \AttributeTok{ylim =} \FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\FunctionTok{max}\NormalTok{(means\_rm }\SpecialCharTok{+}\NormalTok{ se\_rm) }\SpecialCharTok{+} \DecValTok{2}\NormalTok{),}
+     \AttributeTok{xaxt =} \StringTok{"n"}\NormalTok{,}
+     \AttributeTok{main =} \StringTok{"Driving Ability {-} Repeated Measures"}\NormalTok{,}
+     \AttributeTok{xlab =} \StringTok{"Sleep Deprivation"}\NormalTok{, }\AttributeTok{ylab =} \StringTok{"Mean Score"}\NormalTok{)}
+\FunctionTok{axis}\NormalTok{(}\DecValTok{1}\NormalTok{, }\AttributeTok{at =} \DecValTok{1}\SpecialCharTok{:}\DecValTok{3}\NormalTok{, }\AttributeTok{labels =} \FunctionTok{c}\NormalTok{(}\StringTok{"1 Night"}\NormalTok{,}\StringTok{"2 Nights"}\NormalTok{,}\StringTok{"3 Nights"}\NormalTok{))}
+
+\CommentTok{\# Error bars (±1 SE)}
+\FunctionTok{arrows}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\DecValTok{3}\NormalTok{, means\_rm }\SpecialCharTok{{-}}\NormalTok{ se\_rm, }\DecValTok{1}\SpecialCharTok{:}\DecValTok{3}\NormalTok{, means\_rm }\SpecialCharTok{+}\NormalTok{ se\_rm,}
+       \AttributeTok{angle =} \DecValTok{90}\NormalTok{, }\AttributeTok{code =} \DecValTok{3}\NormalTok{, }\AttributeTok{length =} \FloatTok{0.08}\NormalTok{, }\AttributeTok{col =} \StringTok{"steelblue"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{ANOVA_InClass_Activity_files/figure-latex/unnamed-chunk-14-1.pdf}}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{Condition 2: Different participants in all 3 groups →
+Independent One-Way
+ANOVA}\label{condition-2-different-participants-in-all-3-groups-independent-one-way-anova}
+
+\subsubsection{Step 1: Normality}\label{step-1-normality-1}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\ControlFlowTok{for}\NormalTok{ (nm }\ControlFlowTok{in} \FunctionTok{names}\NormalTok{(data\_list)) \{}
+\NormalTok{  sw }\OtherTok{\textless{}{-}} \FunctionTok{shapiro.test}\NormalTok{(data\_list[[nm]])}
+  \FunctionTok{cat}\NormalTok{(nm, }\StringTok{": W ="}\NormalTok{, }\FunctionTok{round}\NormalTok{(sw}\SpecialCharTok{$}\NormalTok{statistic, }\DecValTok{3}\NormalTok{), }\StringTok{", p ="}\NormalTok{, }\FunctionTok{round}\NormalTok{(sw}\SpecialCharTok{$}\NormalTok{p.value, }\DecValTok{3}\NormalTok{),}
+      \FunctionTok{ifelse}\NormalTok{(sw}\SpecialCharTok{$}\NormalTok{p.value }\SpecialCharTok{\textgreater{}} \FloatTok{0.05}\NormalTok{, }\StringTok{"{-}\textgreater{} Normal"}\NormalTok{, }\StringTok{"{-}\textgreater{} NOT Normal"}\NormalTok{), }\StringTok{"}\SpecialCharTok{\textbackslash{}n}\StringTok{"}\NormalTok{)}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 1 Night : W = 0.945 , p = 0.295 -> Normal 
+## 2 Nights : W = 0.949 , p = 0.345 -> Normal 
+## 3 Nights : W = 0.948 , p = 0.333 -> Normal
+\end{verbatim}
+
+\subsubsection{Step 2: Homogeneity of
+Variances}\label{step-2-homogeneity-of-variances}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{score\_ind }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(night1, night2, night3)}
+\NormalTok{cond\_ind  }\OtherTok{\textless{}{-}} \FunctionTok{factor}\NormalTok{(}\FunctionTok{rep}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\StringTok{"1\_Night"}\NormalTok{,}\StringTok{"2\_Nights"}\NormalTok{,}\StringTok{"3\_Nights"}\NormalTok{), }\AttributeTok{each =} \DecValTok{20}\NormalTok{),}
+                    \AttributeTok{levels =} \FunctionTok{c}\NormalTok{(}\StringTok{"1\_Night"}\NormalTok{,}\StringTok{"2\_Nights"}\NormalTok{,}\StringTok{"3\_Nights"}\NormalTok{))}
+
+\FunctionTok{bartlett.test}\NormalTok{(score\_ind }\SpecialCharTok{\textasciitilde{}}\NormalTok{ cond\_ind)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##  Bartlett test of homogeneity of variances
+## 
+## data:  score_ind by cond_ind
+## Bartlett's K-squared = 0.83327, df = 2, p-value = 0.6593
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{levene\_manual}\NormalTok{(score\_ind, cond\_ind)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Analysis of Variance Table
+## 
+## Response: z
+##           Df Sum Sq Mean Sq F value Pr(>F)
+## group      2    2.5  1.2500  0.9241 0.4027
+## Residuals 57   77.1  1.3526
+\end{verbatim}
+
+\subsubsection{Step 3: One-Way ANOVA}\label{step-3-one-way-anova-1}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{model\_ind }\OtherTok{\textless{}{-}} \FunctionTok{aov}\NormalTok{(score\_ind }\SpecialCharTok{\textasciitilde{}}\NormalTok{ cond\_ind)}
+\FunctionTok{summary}\NormalTok{(model\_ind)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##             Df Sum Sq Mean Sq F value Pr(>F)    
+## cond_ind     2 1363.0   681.5   144.6 <2e-16 ***
+## Residuals   57  268.7     4.7                   
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+
+\subsubsection{Step 4: Effect Size
+(η²)}\label{step-4-effect-size-ux3b7uxb2}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{ss\_ind  }\OtherTok{\textless{}{-}} \FunctionTok{summary}\NormalTok{(model\_ind)[[}\DecValTok{1}\NormalTok{]][[}\StringTok{"Sum Sq"}\NormalTok{]]}
+\NormalTok{eta\_ind }\OtherTok{\textless{}{-}}\NormalTok{ ss\_ind[}\DecValTok{1}\NormalTok{] }\SpecialCharTok{/} \FunctionTok{sum}\NormalTok{(ss\_ind)}
+\FunctionTok{cat}\NormalTok{(}\StringTok{"Eta{-}squared ="}\NormalTok{, }\FunctionTok{round}\NormalTok{(eta\_ind, }\DecValTok{3}\NormalTok{), }\StringTok{"}\SpecialCharTok{\textbackslash{}n}\StringTok{"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Eta-squared = 0.835
+\end{verbatim}
+
+\subsubsection{Step 5: Post-Hoc (Tukey
+HSD)}\label{step-5-post-hoc-tukey-hsd}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{TukeyHSD}\NormalTok{(model\_ind)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##   Tukey multiple comparisons of means
+##     95% family-wise confidence level
+## 
+## Fit: aov(formula = score_ind ~ cond_ind)
+## 
+## $cond_ind
+##                     diff        lwr       upr   p adj
+## 2_Nights-1_Night   -3.75  -5.402219 -2.097781 3.2e-06
+## 3_Nights-1_Night  -11.45 -13.102219 -9.797781 0.0e+00
+## 3_Nights-2_Nights  -7.70  -9.352219 -6.047781 0.0e+00
+\end{verbatim}
+
+\subsubsection{Step 6: Plot}\label{step-6-plot-2}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{boxplot}\NormalTok{(score\_ind }\SpecialCharTok{\textasciitilde{}}\NormalTok{ cond\_ind,}
+        \AttributeTok{col  =} \FunctionTok{c}\NormalTok{(}\StringTok{"lightyellow"}\NormalTok{, }\StringTok{"lightblue"}\NormalTok{, }\StringTok{"lightcoral"}\NormalTok{),}
+        \AttributeTok{main =} \StringTok{"Driving Ability {-} Independent Groups"}\NormalTok{,}
+        \AttributeTok{xlab =} \StringTok{"Sleep Deprivation"}\NormalTok{, }\AttributeTok{ylab =} \StringTok{"Score"}\NormalTok{, }\AttributeTok{las =} \DecValTok{1}\NormalTok{)}
+
+\NormalTok{means\_ind }\OtherTok{\textless{}{-}} \FunctionTok{tapply}\NormalTok{(score\_ind, cond\_ind, mean)}
+\FunctionTok{points}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\DecValTok{3}\NormalTok{, means\_ind, }\AttributeTok{pch =} \DecValTok{18}\NormalTok{, }\AttributeTok{col =} \StringTok{"red"}\NormalTok{, }\AttributeTok{cex =} \FloatTok{1.5}\NormalTok{)}
+\FunctionTok{legend}\NormalTok{(}\StringTok{"topright"}\NormalTok{, }\AttributeTok{legend =} \StringTok{"Group mean"}\NormalTok{, }\AttributeTok{pch =} \DecValTok{18}\NormalTok{, }\AttributeTok{col =} \StringTok{"red"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{ANOVA_InClass_Activity_files/figure-latex/unnamed-chunk-20-1.pdf}}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{Q3: Exam Performance}\label{q3-exam-performance}
+
+\textbf{Does school type affect exam scores?}\\
+Design: \textbf{One-Way Independent ANOVA} (different participants per
+group)
+
+\subsection{Data}\label{data-1}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{home\_school }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\DecValTok{89}\NormalTok{, }\DecValTok{75}\NormalTok{, }\DecValTok{49}\NormalTok{, }\DecValTok{87}\NormalTok{, }\DecValTok{84}\NormalTok{, }\DecValTok{68}\NormalTok{, }\DecValTok{88}\NormalTok{, }\DecValTok{78}\NormalTok{, }\DecValTok{77}\NormalTok{, }\DecValTok{93}\NormalTok{, }\DecValTok{67}\NormalTok{, }\DecValTok{79}\NormalTok{, }\DecValTok{69}\NormalTok{, }\DecValTok{88}\NormalTok{, }\DecValTok{91}\NormalTok{)}
+\NormalTok{boarding    }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\DecValTok{85}\NormalTok{, }\DecValTok{78}\NormalTok{, }\DecValTok{59}\NormalTok{, }\DecValTok{77}\NormalTok{, }\DecValTok{63}\NormalTok{, }\DecValTok{88}\NormalTok{, }\DecValTok{71}\NormalTok{, }\DecValTok{73}\NormalTok{, }\DecValTok{69}\NormalTok{, }\DecValTok{80}\NormalTok{, }\DecValTok{72}\NormalTok{, }\DecValTok{68}\NormalTok{, }\DecValTok{66}\NormalTok{, }\DecValTok{59}\NormalTok{, }\DecValTok{70}\NormalTok{)}
+\NormalTok{regular\_day }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\DecValTok{91}\NormalTok{, }\DecValTok{88}\NormalTok{, }\DecValTok{84}\NormalTok{, }\DecValTok{81}\NormalTok{, }\DecValTok{91}\NormalTok{, }\DecValTok{75}\NormalTok{, }\DecValTok{69}\NormalTok{, }\DecValTok{93}\NormalTok{, }\DecValTok{95}\NormalTok{, }\DecValTok{85}\NormalTok{, }\DecValTok{87}\NormalTok{, }\DecValTok{84}\NormalTok{, }\DecValTok{83}\NormalTok{, }\DecValTok{80}\NormalTok{, }\DecValTok{77}\NormalTok{)}
+
+\NormalTok{score\_exam }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(home\_school, boarding, regular\_day)}
+\NormalTok{school     }\OtherTok{\textless{}{-}} \FunctionTok{factor}\NormalTok{(}\FunctionTok{rep}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\StringTok{"Home"}\NormalTok{,}\StringTok{"Boarding"}\NormalTok{,}\StringTok{"Regular Day"}\NormalTok{), }\AttributeTok{each =} \DecValTok{15}\NormalTok{),}
+                     \AttributeTok{levels =} \FunctionTok{c}\NormalTok{(}\StringTok{"Home"}\NormalTok{,}\StringTok{"Boarding"}\NormalTok{,}\StringTok{"Regular Day"}\NormalTok{))}
+\NormalTok{df\_exam    }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(score\_exam, school)}
+
+\FunctionTok{tapply}\NormalTok{(df\_exam}\SpecialCharTok{$}\NormalTok{score\_exam, df\_exam}\SpecialCharTok{$}\NormalTok{school,}
+       \ControlFlowTok{function}\NormalTok{(x) }\FunctionTok{round}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\AttributeTok{n=}\FunctionTok{length}\NormalTok{(x), }\AttributeTok{mean=}\FunctionTok{mean}\NormalTok{(x), }\AttributeTok{sd=}\FunctionTok{sd}\NormalTok{(x)), }\DecValTok{2}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## $Home
+##     n  mean    sd 
+## 15.00 78.80 11.88 
+## 
+## $Boarding
+##     n  mean    sd 
+## 15.00 71.87  8.60 
+## 
+## $`Regular Day`
+##    n mean   sd 
+## 15.0 84.2  7.1
+\end{verbatim}
+
+\subsection{Step 1: Normality}\label{step-1-normality-2}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\ControlFlowTok{for}\NormalTok{ (g }\ControlFlowTok{in} \FunctionTok{levels}\NormalTok{(df\_exam}\SpecialCharTok{$}\NormalTok{school)) \{}
+\NormalTok{  x  }\OtherTok{\textless{}{-}}\NormalTok{ df\_exam}\SpecialCharTok{$}\NormalTok{score\_exam[df\_exam}\SpecialCharTok{$}\NormalTok{school }\SpecialCharTok{==}\NormalTok{ g]}
+\NormalTok{  sw }\OtherTok{\textless{}{-}} \FunctionTok{shapiro.test}\NormalTok{(x)}
+  \FunctionTok{cat}\NormalTok{(g, }\StringTok{": W ="}\NormalTok{, }\FunctionTok{round}\NormalTok{(sw}\SpecialCharTok{$}\NormalTok{statistic, }\DecValTok{3}\NormalTok{), }\StringTok{", p ="}\NormalTok{, }\FunctionTok{round}\NormalTok{(sw}\SpecialCharTok{$}\NormalTok{p.value, }\DecValTok{3}\NormalTok{),}
+      \FunctionTok{ifelse}\NormalTok{(sw}\SpecialCharTok{$}\NormalTok{p.value }\SpecialCharTok{\textgreater{}} \FloatTok{0.05}\NormalTok{, }\StringTok{"{-}\textgreater{} Normal"}\NormalTok{, }\StringTok{"{-}\textgreater{} NOT Normal"}\NormalTok{), }\StringTok{"}\SpecialCharTok{\textbackslash{}n}\StringTok{"}\NormalTok{)}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Home : W = 0.905 , p = 0.115 -> Normal 
+## Boarding : W = 0.969 , p = 0.847 -> Normal 
+## Regular Day : W = 0.975 , p = 0.923 -> Normal
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{par}\NormalTok{(}\AttributeTok{mfrow =} \FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{3}\NormalTok{))}
+\ControlFlowTok{for}\NormalTok{ (g }\ControlFlowTok{in} \FunctionTok{levels}\NormalTok{(df\_exam}\SpecialCharTok{$}\NormalTok{school)) \{}
+\NormalTok{  x }\OtherTok{\textless{}{-}}\NormalTok{ df\_exam}\SpecialCharTok{$}\NormalTok{score\_exam[df\_exam}\SpecialCharTok{$}\NormalTok{school }\SpecialCharTok{==}\NormalTok{ g]}
+  \FunctionTok{qqnorm}\NormalTok{(x, }\AttributeTok{main =} \FunctionTok{paste}\NormalTok{(}\StringTok{"Q{-}Q:"}\NormalTok{, g))}
+  \FunctionTok{qqline}\NormalTok{(x, }\AttributeTok{col =} \StringTok{"red"}\NormalTok{)}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{ANOVA_InClass_Activity_files/figure-latex/unnamed-chunk-22-1.pdf}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{par}\NormalTok{(}\AttributeTok{mfrow =} \FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\subsection{Step 2: Homogeneity of
+Variances}\label{step-2-homogeneity-of-variances-1}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{bartlett.test}\NormalTok{(score\_exam }\SpecialCharTok{\textasciitilde{}}\NormalTok{ school, }\AttributeTok{data =}\NormalTok{ df\_exam)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##  Bartlett test of homogeneity of variances
+## 
+## data:  score_exam by school
+## Bartlett's K-squared = 3.7361, df = 2, p-value = 0.1544
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{levene\_manual}\NormalTok{(df\_exam}\SpecialCharTok{$}\NormalTok{score\_exam, df\_exam}\SpecialCharTok{$}\NormalTok{school)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Analysis of Variance Table
+## 
+## Response: z
+##           Df  Sum Sq Mean Sq F value Pr(>F)
+## group      2  108.98  54.489  1.6477 0.2047
+## Residuals 42 1388.93  33.070
+\end{verbatim}
+
+\subsection{Step 3: One-Way ANOVA}\label{step-3-one-way-anova-2}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{model\_exam }\OtherTok{\textless{}{-}} \FunctionTok{aov}\NormalTok{(score\_exam }\SpecialCharTok{\textasciitilde{}}\NormalTok{ school, }\AttributeTok{data =}\NormalTok{ df\_exam)}
+\FunctionTok{summary}\NormalTok{(model\_exam)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##             Df Sum Sq Mean Sq F value  Pr(>F)   
+## school       2   1147   573.4   6.476 0.00354 **
+## Residuals   42   3719    88.5                   
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+
+\subsection{Step 4: Effect Size
+(η²)}\label{step-4-effect-size-ux3b7uxb2-1}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{ss\_exam  }\OtherTok{\textless{}{-}} \FunctionTok{summary}\NormalTok{(model\_exam)[[}\DecValTok{1}\NormalTok{]][[}\StringTok{"Sum Sq"}\NormalTok{]]}
+\NormalTok{eta\_exam }\OtherTok{\textless{}{-}}\NormalTok{ ss\_exam[}\DecValTok{1}\NormalTok{] }\SpecialCharTok{/} \FunctionTok{sum}\NormalTok{(ss\_exam)}
+\FunctionTok{cat}\NormalTok{(}\StringTok{"Eta{-}squared ="}\NormalTok{, }\FunctionTok{round}\NormalTok{(eta\_exam, }\DecValTok{3}\NormalTok{), }\StringTok{"}\SpecialCharTok{\textbackslash{}n}\StringTok{"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Eta-squared = 0.236
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{cat}\NormalTok{(}\StringTok{"Benchmarks: small = 0.01, medium = 0.06, large = 0.14}\SpecialCharTok{\textbackslash{}n}\StringTok{"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Benchmarks: small = 0.01, medium = 0.06, large = 0.14
+\end{verbatim}
+
+\subsection{Step 5: Post-Hoc (Tukey
+HSD)}\label{step-5-post-hoc-tukey-hsd-1}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{TukeyHSD}\NormalTok{(model\_exam)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##   Tukey multiple comparisons of means
+##     95% family-wise confidence level
+## 
+## Fit: aov(formula = score_exam ~ school, data = df_exam)
+## 
+## $school
+##                           diff        lwr       upr     p adj
+## Boarding-Home        -6.933333 -15.280640  1.413973 0.1203553
+## Regular Day-Home      5.400000  -2.947306 13.747306 0.2689648
+## Regular Day-Boarding 12.333333   3.986027 20.680640 0.0024280
+\end{verbatim}
+
+\subsection{Step 6: Plot}\label{step-6-plot-3}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{boxplot}\NormalTok{(score\_exam }\SpecialCharTok{\textasciitilde{}}\NormalTok{ school, }\AttributeTok{data =}\NormalTok{ df\_exam,}
+        \AttributeTok{col  =} \FunctionTok{c}\NormalTok{(}\StringTok{"lightyellow"}\NormalTok{, }\StringTok{"lightblue"}\NormalTok{, }\StringTok{"lightgreen"}\NormalTok{),}
+        \AttributeTok{main =} \StringTok{"Exam Performance by School Type"}\NormalTok{,}
+        \AttributeTok{xlab =} \StringTok{"School Type"}\NormalTok{, }\AttributeTok{ylab =} \StringTok{"Exam Score"}\NormalTok{, }\AttributeTok{las =} \DecValTok{1}\NormalTok{)}
+
+\NormalTok{means\_exam }\OtherTok{\textless{}{-}} \FunctionTok{tapply}\NormalTok{(df\_exam}\SpecialCharTok{$}\NormalTok{score\_exam, df\_exam}\SpecialCharTok{$}\NormalTok{school, mean)}
+\FunctionTok{points}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\DecValTok{3}\NormalTok{, means\_exam, }\AttributeTok{pch =} \DecValTok{18}\NormalTok{, }\AttributeTok{col =} \StringTok{"red"}\NormalTok{, }\AttributeTok{cex =} \FloatTok{1.5}\NormalTok{)}
+\FunctionTok{legend}\NormalTok{(}\StringTok{"bottomright"}\NormalTok{, }\AttributeTok{legend =} \StringTok{"Group mean"}\NormalTok{, }\AttributeTok{pch =} \DecValTok{18}\NormalTok{, }\AttributeTok{col =} \StringTok{"red"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{ANOVA_InClass_Activity_files/figure-latex/unnamed-chunk-27-1.pdf}}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{Summary}\label{summary}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1667}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Question
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Design
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Normality
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Variance Check
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Test
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Post-Hoc
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Q1 Memory & Independent & \texttt{shapiro.test} & \texttt{bartlett.test}
+/ \texttt{levene\_manual} & \texttt{aov} & \texttt{TukeyHSD} \\
+Q2 Cond.1 Driving & Repeated Measures & \texttt{shapiro.test} &
+\texttt{mauchly.test} (sphericity) & \texttt{aov} + \texttt{Error()} &
+\texttt{pairwise.t.test} (Bonferroni) \\
+Q2 Cond.2 Driving & Independent & \texttt{shapiro.test} &
+\texttt{bartlett.test} / \texttt{levene\_manual} & \texttt{aov} &
+\texttt{TukeyHSD} \\
+Q3 Exam & Independent & \texttt{shapiro.test} & \texttt{bartlett.test} /
+\texttt{levene\_manual} & \texttt{aov} & \texttt{TukeyHSD} \\
+\end{longtable}
+
+\textbf{All code uses base R only --- no extra packages required.}
+
+\end{document}

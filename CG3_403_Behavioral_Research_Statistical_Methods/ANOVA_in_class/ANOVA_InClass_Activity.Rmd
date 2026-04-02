@@ -1,0 +1,370 @@
+---
+title: "ANOVA In-Class Activity"
+author: "Hrithik Sagar @ 2023900021"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+  pdf_document:
+    toc: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+# Overview of Steps (from slide)
+
+1. Check for normality  
+2. Check homogeneity of variances → **Factorial / Independent ANOVA**  
+   Check sphericity of variances → **Repeated Measures ANOVA**  
+3. Choose the appropriate test  
+4. Only if F is significant → run post-hoc test  
+5. Report effect size  
+6. Plot the data  
+
+---
+
+# Q1: Memory Scores
+**Do children with neurodevelopmental disorders have lower memory scores?**  
+Design: **One-Way Independent ANOVA** (different participants per group)
+
+## Data
+
+```{r}
+regular  <- c(24, 22, 19, 22, 28, 26, 28, 24, 30, 29, 25, 20, 17, 19, 18, 26, 27, 24, 27, 27)
+autism   <- c(15, 2, 1, 21, 3, 10, 9, 8, 3, 7, 6, 18, 2, 5, 2, 5, 0, 27)
+epilepsy <- c(30, 15, 34, 26, 14, 28, 17, 29, 25, 11, 37, 36, 34, 22, 18, 5, 12, 10, 15)
+
+# Combine into a data frame
+score <- c(regular, autism, epilepsy)
+group <- factor(rep(c("Regular", "Autism", "Epilepsy"),
+                    times = c(length(regular), length(autism), length(epilepsy))))
+df <- data.frame(score, group)
+
+# Descriptive statistics per group
+tapply(df$score, df$group, function(x) round(c(n=length(x), mean=mean(x), sd=sd(x)), 2))
+```
+
+## Step 1: Check Normality (Shapiro-Wilk + Q-Q Plots)
+
+```{r fig.width=9, fig.height=3.5}
+# Shapiro-Wilk test per group
+for (g in levels(df$group)) {
+  x <- df$score[df$group == g]
+  sw <- shapiro.test(x)
+  cat(g, ": W =", round(sw$statistic, 3), ", p =", round(sw$p.value, 3),
+      ifelse(sw$p.value > 0.05, "-> Normal", "-> NOT Normal"), "\n")
+}
+
+# Q-Q plots
+par(mfrow = c(1, 3))
+for (g in levels(df$group)) {
+  x <- df$score[df$group == g]
+  qqnorm(x, main = paste("Q-Q:", g))
+  qqline(x, col = "red")
+}
+par(mfrow = c(1, 1))
+```
+
+## Step 2: Check Homogeneity of Variances
+
+```{r}
+# Bartlett's test (assumes normality)
+bartlett.test(score ~ group, data = df)
+
+# Levene's test (robust to non-normality) - manual, no extra package
+levene_manual <- function(y, group) {
+  group_medians <- tapply(y, group, median)      # median-based for robustness
+  z <- abs(y - group_medians[group])             # absolute deviations
+  anova(lm(z ~ group))
+}
+levene_manual(df$score, df$group)
+```
+
+> If p > .05: variances are homogeneous → proceed with standard ANOVA
+
+## Step 3: One-Way ANOVA
+
+```{r}
+model <- aov(score ~ group, data = df)
+summary(model)
+```
+
+## Step 4: Effect Size (η² — Eta-squared)
+
+```{r}
+# eta-squared = SS_between / SS_total
+ss      <- summary(model)[[1]][["Sum Sq"]]
+eta_sq  <- ss[1] / sum(ss)
+cat("Eta-squared (eta^2) =", round(eta_sq, 3), "\n")
+cat("Benchmarks: small = 0.01, medium = 0.06, large = 0.14\n")
+```
+
+## Step 5: Post-Hoc Test (Tukey HSD — only if F significant)
+
+```{r}
+TukeyHSD(model)
+```
+
+## Step 6: Plot
+
+```{r fig.width=6, fig.height=5}
+boxplot(score ~ group, data = df,
+        col  = c("lightblue", "lightgreen", "lightyellow"),
+        main = "Memory Scores by Group",
+        xlab = "Group", ylab = "Memory Score", las = 1)
+
+# Mark group means
+means <- tapply(df$score, df$group, mean)
+points(1:length(means), means, pch = 18, col = "red", cex = 1.5)
+legend("topright", legend = "Group mean", pch = 18, col = "red")
+```
+
+---
+
+# Q2: Driving Ability
+**What extent of sleep deprivation affects driving ability?**
+
+```{r}
+night1 <- c(15, 18, 20, 15, 12, 18, 16, 17, 14, 19, 20, 15, 16, 18, 19, 15, 17, 18, 19, 15)
+night2 <- c(10, 16, 13, 11,  9, 14, 13, 14, 15, 14, 12, 13, 14, 12, 11, 15, 14, 16, 11, 14)
+night3 <- c( 5,  3,  9,  6,  4,  7,  8,  2,  4,  6,  9,  5,  3,  7,  1,  8,  7,  3,  7,  3)
+```
+
+---
+
+## Condition 1: Same participants in all 3 groups → Repeated Measures ANOVA
+
+### Step 1: Normality
+
+```{r}
+data_list <- list("1 Night" = night1, "2 Nights" = night2, "3 Nights" = night3)
+for (nm in names(data_list)) {
+  sw <- shapiro.test(data_list[[nm]])
+  cat(nm, ": W =", round(sw$statistic, 3), ", p =", round(sw$p.value, 3),
+      ifelse(sw$p.value > 0.05, "-> Normal", "-> NOT Normal"), "\n")
+}
+```
+
+### Step 2: Sphericity (Mauchly's Test)
+
+```{r}
+# mauchly.test() is built into base R
+Y     <- cbind(night1, night2, night3)
+idata <- data.frame(deprivation = factor(c("1_Night", "2_Nights", "3_Nights")))
+fit   <- lm(Y ~ 1)
+mauchly.test(fit, X = ~ 1, idata = idata)
+```
+
+> If p > .05: sphericity holds → standard RM-ANOVA F values are valid  
+> If p < .05: sphericity violated → apply Greenhouse-Geisser correction (epsilon correction on df)
+
+### Step 3: Repeated Measures ANOVA
+
+```{r}
+n     <- length(night1)
+df_rm <- data.frame(
+  subject     = factor(rep(1:n, 3)),
+  deprivation = factor(rep(c("1_Night","2_Nights","3_Nights"), each = n),
+                       levels = c("1_Night","2_Nights","3_Nights")),
+  score       = c(night1, night2, night3)
+)
+
+# Error(subject/deprivation) partitions within-subject variance
+rm_model <- aov(score ~ deprivation + Error(subject/deprivation), data = df_rm)
+summary(rm_model)
+```
+
+### Step 4: Effect Size (Partial η²)
+
+```{r}
+rm_sum <- summary(rm_model)
+ss_dep <- rm_sum$`Error: subject:deprivation`[[1]]["deprivation", "Sum Sq"]
+ss_res <- rm_sum$`Error: subject:deprivation`[[1]]["Residuals",  "Sum Sq"]
+eta_rm <- ss_dep / (ss_dep + ss_res)
+cat("Partial Eta-squared =", round(eta_rm, 3), "\n")
+```
+
+### Step 5: Post-Hoc (Bonferroni-corrected paired t-tests)
+
+```{r}
+pairwise.t.test(df_rm$score, df_rm$deprivation,
+                paired          = TRUE,
+                p.adjust.method = "bonferroni")
+```
+
+### Step 6: Plot
+
+```{r fig.width=6, fig.height=5}
+means_rm <- tapply(df_rm$score, df_rm$deprivation, mean)
+se_rm    <- tapply(df_rm$score, df_rm$deprivation,
+                   function(x) sd(x) / sqrt(length(x)))
+
+plot(1:3, means_rm, type = "b", pch = 19, col = "steelblue",
+     ylim = c(0, max(means_rm + se_rm) + 2),
+     xaxt = "n",
+     main = "Driving Ability - Repeated Measures",
+     xlab = "Sleep Deprivation", ylab = "Mean Score")
+axis(1, at = 1:3, labels = c("1 Night","2 Nights","3 Nights"))
+
+# Error bars (±1 SE)
+arrows(1:3, means_rm - se_rm, 1:3, means_rm + se_rm,
+       angle = 90, code = 3, length = 0.08, col = "steelblue")
+```
+
+---
+
+## Condition 2: Different participants in all 3 groups → Independent One-Way ANOVA
+
+### Step 1: Normality
+
+```{r}
+for (nm in names(data_list)) {
+  sw <- shapiro.test(data_list[[nm]])
+  cat(nm, ": W =", round(sw$statistic, 3), ", p =", round(sw$p.value, 3),
+      ifelse(sw$p.value > 0.05, "-> Normal", "-> NOT Normal"), "\n")
+}
+```
+
+### Step 2: Homogeneity of Variances
+
+```{r}
+score_ind <- c(night1, night2, night3)
+cond_ind  <- factor(rep(c("1_Night","2_Nights","3_Nights"), each = 20),
+                    levels = c("1_Night","2_Nights","3_Nights"))
+
+bartlett.test(score_ind ~ cond_ind)
+levene_manual(score_ind, cond_ind)
+```
+
+### Step 3: One-Way ANOVA
+
+```{r}
+model_ind <- aov(score_ind ~ cond_ind)
+summary(model_ind)
+```
+
+### Step 4: Effect Size (η²)
+
+```{r}
+ss_ind  <- summary(model_ind)[[1]][["Sum Sq"]]
+eta_ind <- ss_ind[1] / sum(ss_ind)
+cat("Eta-squared =", round(eta_ind, 3), "\n")
+```
+
+### Step 5: Post-Hoc (Tukey HSD)
+
+```{r}
+TukeyHSD(model_ind)
+```
+
+### Step 6: Plot
+
+```{r fig.width=6, fig.height=5}
+boxplot(score_ind ~ cond_ind,
+        col  = c("lightyellow", "lightblue", "lightcoral"),
+        main = "Driving Ability - Independent Groups",
+        xlab = "Sleep Deprivation", ylab = "Score", las = 1)
+
+means_ind <- tapply(score_ind, cond_ind, mean)
+points(1:3, means_ind, pch = 18, col = "red", cex = 1.5)
+legend("topright", legend = "Group mean", pch = 18, col = "red")
+```
+
+---
+
+# Q3: Exam Performance
+**Does school type affect exam scores?**  
+Design: **One-Way Independent ANOVA** (different participants per group)
+
+## Data
+
+```{r}
+home_school <- c(89, 75, 49, 87, 84, 68, 88, 78, 77, 93, 67, 79, 69, 88, 91)
+boarding    <- c(85, 78, 59, 77, 63, 88, 71, 73, 69, 80, 72, 68, 66, 59, 70)
+regular_day <- c(91, 88, 84, 81, 91, 75, 69, 93, 95, 85, 87, 84, 83, 80, 77)
+
+score_exam <- c(home_school, boarding, regular_day)
+school     <- factor(rep(c("Home","Boarding","Regular Day"), each = 15),
+                     levels = c("Home","Boarding","Regular Day"))
+df_exam    <- data.frame(score_exam, school)
+
+tapply(df_exam$score_exam, df_exam$school,
+       function(x) round(c(n=length(x), mean=mean(x), sd=sd(x)), 2))
+```
+
+## Step 1: Normality
+
+```{r fig.width=9, fig.height=3.5}
+for (g in levels(df_exam$school)) {
+  x  <- df_exam$score_exam[df_exam$school == g]
+  sw <- shapiro.test(x)
+  cat(g, ": W =", round(sw$statistic, 3), ", p =", round(sw$p.value, 3),
+      ifelse(sw$p.value > 0.05, "-> Normal", "-> NOT Normal"), "\n")
+}
+
+par(mfrow = c(1, 3))
+for (g in levels(df_exam$school)) {
+  x <- df_exam$score_exam[df_exam$school == g]
+  qqnorm(x, main = paste("Q-Q:", g))
+  qqline(x, col = "red")
+}
+par(mfrow = c(1, 1))
+```
+
+## Step 2: Homogeneity of Variances
+
+```{r}
+bartlett.test(score_exam ~ school, data = df_exam)
+levene_manual(df_exam$score_exam, df_exam$school)
+```
+
+## Step 3: One-Way ANOVA
+
+```{r}
+model_exam <- aov(score_exam ~ school, data = df_exam)
+summary(model_exam)
+```
+
+## Step 4: Effect Size (η²)
+
+```{r}
+ss_exam  <- summary(model_exam)[[1]][["Sum Sq"]]
+eta_exam <- ss_exam[1] / sum(ss_exam)
+cat("Eta-squared =", round(eta_exam, 3), "\n")
+cat("Benchmarks: small = 0.01, medium = 0.06, large = 0.14\n")
+```
+
+## Step 5: Post-Hoc (Tukey HSD)
+
+```{r}
+TukeyHSD(model_exam)
+```
+
+## Step 6: Plot
+
+```{r fig.width=6, fig.height=5}
+boxplot(score_exam ~ school, data = df_exam,
+        col  = c("lightyellow", "lightblue", "lightgreen"),
+        main = "Exam Performance by School Type",
+        xlab = "School Type", ylab = "Exam Score", las = 1)
+
+means_exam <- tapply(df_exam$score_exam, df_exam$school, mean)
+points(1:3, means_exam, pch = 18, col = "red", cex = 1.5)
+legend("bottomright", legend = "Group mean", pch = 18, col = "red")
+```
+
+---
+
+# Summary
+
+| Question | Design | Normality | Variance Check | Test | Post-Hoc |
+|---|---|---|---|---|---|
+| Q1 Memory | Independent | `shapiro.test` | `bartlett.test` / `levene_manual` | `aov` | `TukeyHSD` |
+| Q2 Cond.1 Driving | Repeated Measures | `shapiro.test` | `mauchly.test` (sphericity) | `aov` + `Error()` | `pairwise.t.test` (Bonferroni) |
+| Q2 Cond.2 Driving | Independent | `shapiro.test` | `bartlett.test` / `levene_manual` | `aov` | `TukeyHSD` |
+| Q3 Exam | Independent | `shapiro.test` | `bartlett.test` / `levene_manual` | `aov` | `TukeyHSD` |
+
+**All code uses base R only — no extra packages required.**
