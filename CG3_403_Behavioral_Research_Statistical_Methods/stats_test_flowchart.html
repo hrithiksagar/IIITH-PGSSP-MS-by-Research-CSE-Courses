@@ -1,0 +1,364 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans, sans-serif); }
+.page { padding: 1rem 0.5rem 2rem; max-width: 900px; margin: auto; }
+h2.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+
+/* ── TOP QUESTION BANNERS ── */
+.q-row { display: flex; gap: 10px; margin-bottom: 10px; }
+.q-box {
+  flex: 1; padding: 10px 14px; border-radius: 10px;
+  border: 0.5px solid var(--color-border-secondary);
+  background: var(--color-background-secondary);
+  font-size: 13px; color: var(--color-text-secondary);
+  text-align: center;
+}
+.q-box strong { display: block; font-size: 15px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 3px; }
+
+/* ── COLUMN HEADERS ── */
+.col-headers { display: grid; grid-template-columns: 160px 1fr 1fr; gap: 10px; margin-bottom: 6px; }
+.col-hdr {
+  text-align: center; font-size: 13px; font-weight: 500;
+  padding: 8px 4px; border-radius: 8px;
+}
+.hdr-between { background: #E6F1FB; color: #0C447C; border: 0.5px solid #85B7EB; }
+.hdr-within  { background: #E1F5EE; color: #085041; border: 0.5px solid #5DCAA5; }
+@media (prefers-color-scheme: dark) {
+  .hdr-between { background: #0C447C; color: #B5D4F4; border-color: #378ADD; }
+  .hdr-within  { background: #085041; color: #9FE1CB; border-color: #1D9E75; }
+}
+
+/* ── GRID ROWS ── */
+.grid-row { display: grid; grid-template-columns: 160px 1fr 1fr; gap: 10px; margin-bottom: 10px; align-items: start; }
+.row-label {
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 500; padding: 10px 8px;
+  border-radius: 8px; text-align: center; min-height: 80px;
+}
+.lbl-param    { background: #EEEDFE; color: #3C3489; border: 0.5px solid #AFA9EC; }
+.lbl-nonord   { background: #FAEEDA; color: #633806; border: 0.5px solid #EF9F27; }
+.lbl-noncat   { background: #FAECE7; color: #712B13; border: 0.5px solid #F0997B; }
+@media (prefers-color-scheme: dark) {
+  .lbl-param  { background: #3C3489; color: #CECBF6; border-color: #7F77DD; }
+  .lbl-nonord { background: #633806; color: #FAC775; border-color: #BA7517; }
+  .lbl-noncat { background: #712B13; color: #F5C4B3; border-color: #D85A30; }
+}
+
+/* ── TEST CARDS ── */
+.test-card {
+  border-radius: 10px; border: 0.5px solid var(--color-border-tertiary);
+  background: var(--color-background-primary);
+  overflow: hidden; cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.test-card:hover { border-color: var(--color-border-primary); }
+.test-card.open  { border-color: var(--color-border-primary); }
+.card-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 12px; gap: 8px;
+}
+.card-name { font-size: 14px; font-weight: 500; color: var(--color-text-primary); }
+.card-tag  { font-size: 11px; padding: 2px 8px; border-radius: 20px; white-space: nowrap; }
+.tag-param  { background: #EEEDFE; color: #534AB7; }
+.tag-nonord { background: #FAEEDA; color: #854F0B; }
+.tag-noncat { background: #FAECE7; color: #993C1D; }
+@media (prefers-color-scheme: dark) {
+  .tag-param  { background: #26215C; color: #CECBF6; }
+  .tag-nonord { background: #412402; color: #FAC775; }
+  .tag-noncat { background: #4A1B0C; color: #F5C4B3; }
+}
+.chevron { font-size: 11px; color: var(--color-text-secondary); transition: transform 0.2s; }
+.open .chevron { transform: rotate(180deg); }
+
+.card-body {
+  display: none; border-top: 0.5px solid var(--color-border-tertiary);
+  padding: 12px; font-size: 13px; line-height: 1.65; color: var(--color-text-secondary);
+}
+.open .card-body { display: block; }
+
+.card-body .def { margin-bottom: 8px; }
+.card-body .def strong { font-weight: 500; color: var(--color-text-primary); display: block; margin-bottom: 2px; }
+.card-body .assume { margin-bottom: 8px; }
+.card-body .assume strong { font-weight: 500; color: var(--color-text-primary); }
+.card-body .ex {
+  background: var(--color-background-secondary);
+  border-left: 2px solid var(--color-border-secondary);
+  padding: 6px 10px; border-radius: 0 6px 6px 0;
+  font-size: 12px; margin-top: 6px;
+}
+.card-body .ex strong { font-weight: 500; color: var(--color-text-primary); }
+.card-body .stat { display: inline-block; margin-top: 6px; font-size: 12px; font-weight: 500; color: var(--color-text-secondary); }
+
+/* ── LEGEND ── */
+.legend { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; font-size: 12px; }
+.legend-item { display: flex; align-items: center; gap: 5px; }
+.legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+.dot-p  { background: #7F77DD; }
+.dot-no { background: #BA7517; }
+.dot-nc { background: #D85A30; }
+.dot-bt { background: #378ADD; }
+.dot-wi { background: #1D9E75; }
+
+/* ── DECISION FLOW (mini) ── */
+.flow-box {
+  display: inline-block; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 500;
+  border: 0.5px solid var(--color-border-secondary);
+  background: var(--color-background-secondary);
+  color: var(--color-text-primary);
+}
+.flow-arrow { font-size: 13px; color: var(--color-text-secondary); margin: 0 4px; }
+.flow-row { display: flex; align-items: center; flex-wrap: wrap; gap: 4px; margin-bottom: 10px; font-size: 12px; }
+
+/* ── SECTION HEADER ── */
+.section-title {
+  font-size: 12px; font-weight: 500; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--color-text-secondary);
+  margin: 18px 0 8px;
+}
+</style>
+
+<div class="page">
+<h2 class="sr-only">Flowchart of statistical tests: parametric and non-parametric, between groups and within groups</h2>
+
+<!-- DECISION FLOW -->
+<div class="section-title">How to pick your test</div>
+<div class="flow-row">
+  <span class="flow-box">What's your data type?</span>
+  <span class="flow-arrow">→</span>
+  <span class="flow-box">Interval/ratio?</span>
+  <span class="flow-arrow">→</span>
+  <span class="flow-box">Check normality</span>
+  <span class="flow-arrow">→</span>
+  <span class="flow-box">✓ Normal = Parametric</span>
+</div>
+<div class="flow-row">
+  <span class="flow-box" style="opacity:0;pointer-events:none">placeholder</span>
+  <span class="flow-arrow" style="opacity:0">→</span>
+  <span class="flow-box">Ordinal?</span>
+  <span class="flow-arrow">→</span>
+  <span class="flow-box">Non-parametric (ordinal)</span>
+</div>
+<div class="flow-row">
+  <span class="flow-box" style="opacity:0;pointer-events:none">placeholder</span>
+  <span class="flow-arrow" style="opacity:0">→</span>
+  <span class="flow-box">Categorical?</span>
+  <span class="flow-arrow">→</span>
+  <span class="flow-box">Non-parametric (categorical)</span>
+</div>
+<div class="flow-row" style="margin-top:4px">
+  <span class="flow-box">Design?</span>
+  <span class="flow-arrow">→</span>
+  <span class="flow-box" style="background:#E6F1FB;color:#0C447C;border-color:#85B7EB">Between groups = different people</span>
+  <span style="margin:0 6px;color:var(--color-text-secondary);font-size:12px">vs</span>
+  <span class="flow-box" style="background:#E1F5EE;color:#085041;border-color:#5DCAA5">Within groups = same people</span>
+</div>
+
+<!-- LEGEND -->
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot dot-p"></div><span style="color:var(--color-text-secondary)">Parametric</span></div>
+  <div class="legend-item"><div class="legend-dot dot-no"></div><span style="color:var(--color-text-secondary)">Non-param (ordinal)</span></div>
+  <div class="legend-item"><div class="legend-dot dot-nc"></div><span style="color:var(--color-text-secondary)">Non-param (categorical)</span></div>
+  <div class="legend-item"><div class="legend-dot dot-bt"></div><span style="color:var(--color-text-secondary)">Between groups</span></div>
+  <div class="legend-item"><div class="legend-dot dot-wi"></div><span style="color:var(--color-text-secondary)">Within groups</span></div>
+  <div style="font-size:11px;color:var(--color-text-secondary);margin-left:auto">👆 Click any card to expand</div>
+</div>
+
+<!-- COLUMN HEADERS -->
+<div class="col-headers">
+  <div></div>
+  <div class="col-hdr hdr-between">Between groups<br><span style="font-weight:400;font-size:11px">Independent samples — different people</span></div>
+  <div class="col-hdr hdr-within">Within groups<br><span style="font-weight:400;font-size:11px">Repeated measures — same people</span></div>
+</div>
+
+<!-- ROW 1: PARAMETRIC / 2 groups -->
+<div class="grid-row">
+  <div class="row-label lbl-param">Parametric<br>(interval, normal)<br>2 groups</div>
+  <div class="test-card" onclick="toggle(this)">
+    <div class="card-header">
+      <span class="card-name">Independent samples t-test</span>
+      <span class="card-tag tag-param">Parametric</span>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="card-body">
+      <div class="def"><strong>What it tests</strong>Are the means of two independent groups significantly different?</div>
+      <div class="assume"><strong>Assumptions:</strong> Normal distribution in both groups, interval data, homogeneity of variances (Levene's test)</div>
+      <div class="ex"><strong>Example:</strong> Do men and women differ in exam scores? Group A (men) vs Group B (women) — each person tested once. → t(df) = ..., p &lt; .05</div>
+      <div class="ex"><strong>Also called:</strong> Unrelated t-test, between-subjects t-test</div>
+    </div>
+  </div>
+  <div class="test-card" onclick="toggle(this)">
+    <div class="card-header">
+      <span class="card-name">Related (paired) t-test</span>
+      <span class="card-tag tag-param">Parametric</span>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="card-body">
+      <div class="def"><strong>What it tests</strong>Is there a significant difference in means across two time points or conditions for the same participants?</div>
+      <div class="assume"><strong>Assumptions:</strong> Differences between pairs are normally distributed, interval data</div>
+      <div class="ex"><strong>Example:</strong> Same students tested before and after revision. Score at Time 1 vs Time 2. → t(df) = ..., p &lt; .05</div>
+      <div class="ex"><strong>Key idea:</strong> Subtracts each person's scores — removes individual variation. More powerful than independent t-test.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ROW 2: PARAMETRIC / >2 groups -->
+<div class="grid-row">
+  <div class="row-label lbl-param">Parametric<br>(interval, normal)<br>&gt;2 groups</div>
+  <div class="test-card" onclick="toggle(this)">
+    <div class="card-header">
+      <span class="card-name">One-way ANOVA</span>
+      <span class="card-tag tag-param">Parametric</span>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="card-body">
+      <div class="def"><strong>What it tests</strong>Are there differences in means across 3+ independent groups?</div>
+      <div class="assume"><strong>Assumptions:</strong> Normality (Shapiro-Wilk), homogeneity of variances (Levene's). If variances unequal → <em>Welch ANOVA</em></div>
+      <div class="ex"><strong>Example:</strong> 3 groups each get a different drug. Compare mean recovery times. F(2, 87) = 5.3, p = .007, η² = .11</div>
+      <div class="ex"><strong>Post-hoc needed</strong> if F is significant — to find WHICH groups differ (Tukey, Bonferroni).</div>
+      <span class="stat">Test statistic: F = MS_between / MS_within</span>
+    </div>
+  </div>
+  <div class="test-card" onclick="toggle(this)">
+    <div class="card-header">
+      <span class="card-name">Repeated measures ANOVA</span>
+      <span class="card-tag tag-param">Parametric</span>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="card-body">
+      <div class="def"><strong>What it tests</strong>Do means differ across 3+ conditions/timepoints measured on the same people?</div>
+      <div class="assume"><strong>Assumptions:</strong> Normality + <em>Sphericity</em> (Mauchly's test). If violated → Greenhouse-Geisser or Huynh-Feldt correction</div>
+      <div class="ex"><strong>Example:</strong> Same students tested after re-reading, answering questions, and creating questions. F(2, 10) = 19.09, p &lt; .001, η² = .79</div>
+      <div class="ex"><strong>Sphericity:</strong> Assumes variances of differences between all condition pairs are equal (the within-subjects version of homogeneity).</div>
+    </div>
+  </div>
+</div>
+
+<!-- ROW 3: NON-PARAM / ORDINAL / 2 groups -->
+<div class="grid-row">
+  <div class="row-label lbl-nonord">Non-parametric<br>(ordinal data)<br>2 groups</div>
+  <div class="test-card" onclick="toggle(this)">
+    <div class="card-header">
+      <span class="card-name">Mann-Whitney U</span>
+      <span class="card-tag tag-nonord">Non-param (ordinal)</span>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="card-body">
+      <div class="def"><strong>What it tests</strong>Do two independent groups have different rank distributions? (Non-parametric alternative to independent t-test)</div>
+      <div class="assume"><strong>When to use:</strong> Data is ordinal, or normality is violated with small samples</div>
+      <div class="ex"><strong>Example:</strong> Compare pain rankings (1–10 scale) between two treatment groups. Ranks all scores together, compares rank sums.</div>
+      <div class="ex"><strong>Also called:</strong> Wilcoxon Rank-Sum test. Tests medians, not means.</div>
+    </div>
+  </div>
+  <div class="test-card" onclick="toggle(this)">
+    <div class="card-header">
+      <span class="card-name">Wilcoxon Signed-Rank</span>
+      <span class="card-tag tag-nonord">Non-param (ordinal)</span>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="card-body">
+      <div class="def"><strong>What it tests</strong>Are there differences between two related conditions in the same people? (Non-parametric alternative to paired t-test)</div>
+      <div class="assume"><strong>When to use:</strong> Ordinal data, or normality violated in paired design</div>
+      <div class="ex"><strong>Example:</strong> Participants rate anxiety before and after therapy (ordinal 1–10). Ranks the magnitude of differences, ignores ties.</div>
+      <div class="ex"><strong>Difference from sign test:</strong> Considers the size of differences, not just direction.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ROW 4: NON-PARAM / ORDINAL / >2 groups -->
+<div class="grid-row">
+  <div class="row-label lbl-nonord">Non-parametric<br>(ordinal data)<br>&gt;2 groups</div>
+  <div class="test-card" onclick="toggle(this)">
+    <div class="card-header">
+      <span class="card-name">Kruskal-Wallis</span>
+      <span class="card-tag tag-nonord">Non-param (ordinal)</span>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="card-body">
+      <div class="def"><strong>What it tests</strong>Do 3+ independent groups differ in rank distributions? (Non-parametric alternative to one-way ANOVA)</div>
+      <div class="assume"><strong>When to use:</strong> Normality violated OR ordinal DV, 3+ groups, different participants</div>
+      <div class="ex"><strong>Example:</strong> Compare satisfaction ratings across 3 different apps. Ranks all scores, tests if rank sums differ between groups.</div>
+      <div class="ex"><strong>Note:</strong> Like Mann-Whitney, but for 3+ groups. Still needs post-hoc if significant.</div>
+    </div>
+  </div>
+  <div class="test-card" onclick="toggle(this)">
+    <div class="card-header">
+      <span class="card-name">Friedman's ANOVA</span>
+      <span class="card-tag tag-nonord">Non-param (ordinal)</span>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="card-body">
+      <div class="def"><strong>What it tests</strong>Do the same participants differ across 3+ conditions? (Non-parametric alternative to repeated measures ANOVA)</div>
+      <div class="assume"><strong>When to use:</strong> Normality violated in repeated measures design, or ordinal data across 3+ timepoints</div>
+      <div class="ex"><strong>Example:</strong> Same students scored after re-reading, answering questions, creating questions. Ranks each person's scores within their own row, then compares rank sums across conditions.</div>
+      <span class="stat">Test stat: M = 12/(Nk(k+1)) × ΣR²ᵢ − 3N(k+1)</span>
+    </div>
+  </div>
+</div>
+
+<!-- ROW 5: NON-PARAM / CATEGORICAL -->
+<div class="grid-row">
+  <div class="row-label lbl-noncat">Non-parametric<br>(categorical data)</div>
+  <div class="test-card" onclick="toggle(this)">
+    <div class="card-header">
+      <span class="card-name">Chi-square (χ²) test</span>
+      <span class="card-tag tag-noncat">Non-param (categorical)</span>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="card-body">
+      <div class="def"><strong>What it tests</strong>Is there an association between two categorical variables in independent groups? Are observed frequencies different from expected?</div>
+      <div class="assume"><strong>Assumptions:</strong> Expected frequency ≥ 5 in each cell, independent observations</div>
+      <div class="ex"><strong>Example:</strong> Is there a relationship between gender (M/F) and voting choice (A/B/C)? → χ²(2) = 8.3, p = .016, Cramér's V = .21</div>
+      <div class="ex"><strong>Chi-square = Σ (O − E)² / E</strong> — bigger = more different from expected.</div>
+    </div>
+  </div>
+  <div class="test-card" onclick="toggle(this)">
+    <div class="card-header">
+      <span class="card-name">Binomial sign test</span>
+      <span class="card-tag tag-noncat">Non-param (categorical)</span>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="card-body">
+      <div class="def"><strong>What it tests</strong>In a repeated/matched design, do participants systematically score higher in one condition vs another? (Weakest non-param test — only uses direction, not magnitude)</div>
+      <div class="assume"><strong>When to use:</strong> Categorical outcome or when you can only tell if scores went up or down, not by how much</div>
+      <div class="ex"><strong>Example:</strong> 20 students tested before/after tutoring. 15 improved, 5 worsened. Is 15/20 significantly above chance (50%)? Uses binomial distribution.</div>
+      <div class="ex"><strong>Weaker than Wilcoxon:</strong> Wilcoxon uses the size of differences; sign test only uses +/−. Use sign test when you can't rank differences.</div>
+    </div>
+  </div>
+</div>
+
+<!-- QUICK REFERENCE TABLE -->
+<div class="section-title" style="margin-top:22px">Quick reference — parametric ↔ non-parametric pairs</div>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;font-size:12px;">
+  <div style="font-weight:500;color:var(--color-text-secondary);padding:4px 0;border-bottom:0.5px solid var(--color-border-tertiary)">Parametric</div>
+  <div style="font-weight:500;color:var(--color-text-secondary);padding:4px 0;border-bottom:0.5px solid var(--color-border-tertiary)">Non-param ordinal alternative</div>
+  <div style="font-weight:500;color:var(--color-text-secondary);padding:4px 0;border-bottom:0.5px solid var(--color-border-tertiary)">Design</div>
+
+  <div style="padding:5px 0;color:var(--color-text-primary)">Independent t-test</div>
+  <div style="padding:5px 0;color:var(--color-text-primary)">Mann-Whitney U</div>
+  <div style="padding:5px 0;color:var(--color-text-secondary)">Between / 2 groups</div>
+
+  <div style="padding:5px 0;color:var(--color-text-primary)">Paired t-test</div>
+  <div style="padding:5px 0;color:var(--color-text-primary)">Wilcoxon Signed-Rank</div>
+  <div style="padding:5px 0;color:var(--color-text-secondary)">Within / 2 groups</div>
+
+  <div style="padding:5px 0;color:var(--color-text-primary)">One-way ANOVA</div>
+  <div style="padding:5px 0;color:var(--color-text-primary)">Kruskal-Wallis</div>
+  <div style="padding:5px 0;color:var(--color-text-secondary)">Between / 3+ groups</div>
+
+  <div style="padding:5px 0;color:var(--color-text-primary)">Repeated measures ANOVA</div>
+  <div style="padding:5px 0;color:var(--color-text-primary)">Friedman's ANOVA</div>
+  <div style="padding:5px 0;color:var(--color-text-secondary)">Within / 3+ groups</div>
+
+  <div style="padding:5px 0;color:var(--color-text-secondary)">(no parametric equiv.)</div>
+  <div style="padding:5px 0;color:var(--color-text-primary)">Chi-square / Sign test</div>
+  <div style="padding:5px 0;color:var(--color-text-secondary)">Categorical data</div>
+</div>
+</div>
+
+<script>
+function toggle(card) {
+  const wasOpen = card.classList.contains('open');
+  card.classList.toggle('open', !wasOpen);
+}
+</script>

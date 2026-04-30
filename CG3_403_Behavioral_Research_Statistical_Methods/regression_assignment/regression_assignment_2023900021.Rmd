@@ -1,0 +1,297 @@
+---
+title: "Regression Assignment"
+output:
+  pdf_document:
+    latex_engine: xelatex
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+# PART 1: Linear Regression on Housing Data (10 marks)
+
+```{r load-data}
+housing <- read.csv("housing.csv")
+housing_clean <- na.omit(housing)
+str(housing_clean)
+summary(housing_clean)
+```
+
+There are 20,433 complete observations after removing the 207 rows with missing values in `total_bedrooms`. The outcome variable `median_house_value` ranges from about $15,000 to $500,001, with a mean of around $207,000.
+
+---
+
+## 1. Visualizing Correlations Between Variables (2 marks)
+
+```{r correlations}
+num_vars <- housing_clean[, sapply(housing_clean, is.numeric)]
+cor_matrix <- cor(num_vars, use = "complete.obs")
+round(cor_matrix, 2)
+
+# Median income vs house value
+plot(housing_clean$median_income, housing_clean$median_house_value,
+     main = "Median Income vs Median House Value",
+     xlab = "Median Income (in $10,000s)",
+     ylab = "Median House Value ($)",
+     col = rgb(0.2, 0.4, 0.8, 0.3), pch = 16, cex = 0.5)
+abline(lm(median_house_value ~ median_income, data = housing_clean),
+       col = "red", lwd = 2)
+
+# Housing age vs house value
+plot(housing_clean$housing_median_age, housing_clean$median_house_value,
+     main = "Housing Median Age vs Median House Value",
+     xlab = "Housing Median Age (years)",
+     ylab = "Median House Value ($)",
+     col = rgb(0.2, 0.7, 0.4, 0.3), pch = 16, cex = 0.5)
+abline(lm(median_house_value ~ housing_median_age, data = housing_clean),
+       col = "red", lwd = 2)
+
+# Households vs house value
+plot(housing_clean$households, housing_clean$median_house_value,
+     main = "Households vs Median House Value",
+     xlab = "Number of Households",
+     ylab = "Median House Value ($)",
+     col = rgb(0.8, 0.3, 0.3, 0.3), pch = 16, cex = 0.5)
+abline(lm(median_house_value ~ households, data = housing_clean),
+       col = "red", lwd = 2)
+
+# Pairs plot
+pairs(num_vars[, c("median_house_value","median_income","housing_median_age",
+                   "total_rooms","households","population")],
+      main = "Pairs Plot of Housing Variables",
+      col = rgb(0.2, 0.4, 0.8, 0.2), pch = 16, cex = 0.3)
+```
+
+Looking at the correlation matrix and plots, `median_income` has by far the strongest positive correlation with `median_house_value` (r = 0.69). `housing_median_age` has a modest positive correlation (r = 0.11), while `population` is slightly negatively correlated (r = -0.03). What stands out immediately is how strongly correlated `total_rooms`, `total_bedrooms`, `population`, and `households` are with each other, with correlations ranging from 0.86 to 0.98. This is an early signal of serious collinearity that will need to be addressed in model building.
+
+---
+
+## 2. Two Linear Regression Models
+
+**Model 1** includes all six numeric predictors. The reasoning is to start with a comprehensive baseline that captures as many potential influences on house value as possible. Based on the correlation analysis, all predictors have some relationship with the outcome variable, so there is justification for including each of them.
+
+**Model 2** is a reduced model with just `median_income`, `housing_median_age`, and `households`. As the pairs plot makes clear, `total_rooms`, `total_bedrooms`, `population`, and `households` are all measuring roughly the same thing — the size and density of a district. Keeping all four creates redundancy. So in Model 2, I kept only `households` as the single representative of district size, and dropped the other three. This is a theoretically motivated choice rather than an arbitrary one.
+
+```{r models}
+model1 <- lm(median_house_value ~ median_income + housing_median_age +
+               total_rooms + total_bedrooms + population + households,
+             data = housing_clean)
+
+model2 <- lm(median_house_value ~ median_income + housing_median_age + households,
+             data = housing_clean)
+
+summary(model1)
+summary(model2)
+```
+
+Model 1 has an adjusted R² of 0.567, meaning it explains about 56.7% of the variance in median house value. Model 2 explains 52.4% with just three predictors. Both models are highly statistically significant overall (F-statistic p < 2e-16). Notably, the condition number for Model 1 is very large (1.68e+04), which R flags as an indicator of potential multicollinearity or numerical problems, further motivating the reduced Model 2.
+
+---
+
+## 3. Checking for Collinearity Using VIF (1 mark)
+
+```{r vif}
+library(car)
+
+cat("VIF for Model 1:\n")
+vif(model1)
+
+cat("\nVIF for Model 2:\n")
+vif(model2)
+```
+
+The VIF results confirm what the correlation matrix suggested. In Model 1, `total_bedrooms` has a VIF of 35.5 and `households` has a VIF of 33.8, both dramatically above the threshold of 10 that the lecture identifies as problematic. `total_rooms` also comes in at 11.9, and `population` at 6.2. These variables are so correlated with each other that the model cannot reliably separate their individual effects, inflating standard errors and making the coefficients unstable.
+
+In Model 2, all VIF values drop to around 1.0 to 1.1, which is essentially perfect. The collinearity problem is completely resolved by dropping the redundant predictors and keeping only `households` as the representative of district size.
+
+---
+
+## 4. Residuals vs Fitted Values — Checking for Heteroscedasticity (1 mark)
+
+```{r residuals-plot}
+plot(fitted(model1), residuals(model1),
+     main = "Model 1: Residuals vs Fitted Values",
+     xlab = "Fitted Values", ylab = "Residuals",
+     col = rgb(0.2, 0.4, 0.8, 0.3), pch = 16, cex = 0.4)
+abline(h = 0, col = "red", lwd = 2)
+
+plot(fitted(model2), residuals(model2),
+     main = "Model 2: Residuals vs Fitted Values",
+     xlab = "Fitted Values", ylab = "Residuals",
+     col = rgb(0.8, 0.4, 0.2, 0.3), pch = 16, cex = 0.4)
+abline(h = 0, col = "red", lwd = 2)
+```
+
+Both plots show a clear funnel shape where the spread of residuals increases as fitted values increase. This is the classic visual signature of heteroscedasticity — the variance of the errors is not constant but grows with the predicted house value. The residuals also show a cluster of very large positive outliers at the top, which likely corresponds to houses hitting the dataset's cap at $500,001. Both models exhibit this pattern, though Model 1 shows slightly more scatter due to the collinearity issues inflating its predictions.
+
+---
+
+## 5. ncvTest for Heteroscedasticity (1 mark)
+
+```{r ncvtest}
+ncvTest(model1)
+ncvTest(model2)
+```
+
+The Non-constant Variance Score Test (equivalent to the Breusch-Pagan test) confirms what we saw visually. For Model 1, the chi-square statistic is 763.1 (p < 0.0001), and for Model 2 it is 326.4 (p < 0.0001). Both are overwhelmingly significant, meaning we firmly reject the null hypothesis of constant variance. Heteroscedasticity is definitively present in both models. This means the standard errors reported by OLS are not reliable, and if we were drawing strict inferential conclusions, we would want to use heteroscedasticity-corrected (sandwich) standard errors as discussed in the lecture.
+
+---
+
+## 6. Testing for Normality of Residuals (1 mark)
+
+```{r normality}
+# Q-Q plots
+qqnorm(residuals(model1), main = "Q-Q Plot of Residuals — Model 1")
+qqline(residuals(model1), col = "red", lwd = 2)
+
+qqnorm(residuals(model2), main = "Q-Q Plot of Residuals — Model 2")
+qqline(residuals(model2), col = "red", lwd = 2)
+
+# Histograms
+hist(residuals(model1), breaks = 60,
+     main = "Histogram of Residuals — Model 1",
+     xlab = "Residuals", col = "steelblue", border = "white")
+
+hist(residuals(model2), breaks = 60,
+     main = "Histogram of Residuals — Model 2",
+     xlab = "Residuals", col = "darkorange", border = "white")
+
+# Shapiro-Wilk on a sample (full dataset exceeds n=5000 limit)
+set.seed(42)
+shapiro.test(sample(residuals(model1), 5000))
+shapiro.test(sample(residuals(model2), 5000))
+```
+
+The Q-Q plots show clear departures from normality in both models, particularly in the upper tail where points curve sharply away from the reference line. The histograms confirm this — both are right-skewed with a long positive tail. The Shapiro-Wilk test on a sample of 5,000 residuals gives W = 0.937 (p < 0.0001) for Model 1 and W = 0.933 (p < 0.0001) for Model 2, both strongly rejecting the normality assumption. This is partly a consequence of the $500,001 cap on house values in the dataset, which creates an artificial ceiling and a pile-up of residuals in one direction. With 20,000+ observations, the Central Limit Theorem does provide some protection for the coefficient estimates, but the departure from normality is worth noting.
+
+---
+
+## 7. Comparing Models Using AIC (1 mark)
+
+```{r aic}
+AIC(model1, model2)
+cat("\nModel 1 Adjusted R-squared:", summary(model1)$adj.r.squared)
+cat("\nModel 2 Adjusted R-squared:", summary(model2)$adj.r.squared)
+```
+
+Model 1 has an AIC of 517,262 and Model 2 has an AIC of 519,192. Since lower AIC is better, **Model 1 wins** on the AIC comparison. Even though it has more parameters, the improvement in fit is large enough to outweigh the complexity penalty. That said, the difference in adjusted R² is modest (0.567 vs 0.524), and Model 1's VIF values are alarmingly high. For prediction purposes, Model 1 is the better fitting model. For interpretation and reliability of individual coefficients, Model 2 is far more trustworthy.
+
+---
+
+## 8. Coefficients of the Winning Model (3 marks)
+
+Model 1 wins on AIC, so we report its coefficients below.
+
+```{r winning-model}
+summary(model1)
+confint(model1, level = 0.95)
+```
+
+**Interpretation of Model 1 coefficients:**
+
+**Intercept (−46,140):** When all predictors are zero, the model predicts a house value of −$46,140. This has no practical meaning on its own since having zero income, zero rooms, etc. is not a realistic scenario, but it anchors the regression plane.
+
+**median_income (47,750; 95% CI: 47,100 to 48,400):** This is the strongest predictor. For every one-unit increase in median income (which is measured in tens of thousands of dollars), the predicted median house value increases by about $47,750, holding everything else constant. The 95% CI does not include zero and the coefficient is highly significant (p < 0.0001), confirming this is a reliable predictor.
+
+**housing_median_age (1,882; 95% CI: 1,793 to 1,971):** Older districts tend to have higher house values. Each additional year of median housing age is associated with roughly $1,882 higher house value. This likely reflects the fact that older housing stock tends to be concentrated in established, often coastal or central urban areas that command a premium.
+
+**total_rooms (−19.7; 95% CI: −21.4 to −18.1):** Counterintuitively, more total rooms in a district is associated with slightly lower house values. This is a collinearity artifact — total_rooms is correlated with population and households, and the model is struggling to separate these effects cleanly. This coefficient should not be interpreted in isolation.
+
+**total_bedrooms (101.0; 95% CI: 86.2 to 115.7):** Partially offsetting the rooms effect, more bedrooms per district is associated with higher values. Again, because of the collinearity with total_rooms and households, these two coefficients are telling a confused story together rather than clean independent effects.
+
+**population (−35.3; 95% CI: −37.6 to −33.0):** More densely populated districts have lower house values on average, which makes intuitive sense — denser areas tend to be more urban and less affluent on a per-capita basis.
+
+**households (124.8; 95% CI: 109.0 to 140.7):** More households in a district is associated with higher house values, again partially capturing the district-size and urbanisation effect.
+
+The collinearity among the last four predictors means their individual coefficients should be treated with caution. The one coefficient that can be interpreted cleanly and confidently is `median_income`, which is not collinear with the others (VIF = 1.51) and is the dominant driver of house values in this model.
+
+---
+
+---
+
+# PART 2: Logistic Regression on Admission Data (5 marks)
+
+```{r load-binary}
+binary <- read.csv("binary.csv")
+binary$rank <- as.factor(binary$rank)
+str(binary)
+summary(binary)
+table(binary$admit)
+```
+
+The dataset has 400 observations — 273 rejections (68.25%) and 127 admissions (31.75%). `rank` is treated as a factor with rank 1 representing the most prestigious institutions and rank 4 the least prestigious.
+
+---
+
+## Logistic Regression: Predicting Admission (3 marks)
+
+```{r logistic}
+logit_model <- glm(admit ~ gre + gpa + rank,
+                   data = binary,
+                   family = binomial(link = "logit"))
+
+summary(logit_model)
+
+cat("\n95% Confidence Intervals (log-odds scale):\n")
+confint(logit_model)
+
+cat("\nOdds Ratios with 95% CIs:\n")
+exp(cbind(OR = coef(logit_model), confint(logit_model)))
+```
+
+**Interpretation:**
+
+The model as a whole is statistically significant (LLR p-value = 7.58e-08), confirming that GRE, GPA, and rank together provide meaningful predictive power for admission.
+
+**GRE (OR = 1.002; 95% CI: 1.000 to 1.004; p = 0.038):** GRE is statistically significant but the effect size is tiny. Each additional point on the GRE multiplies the odds of admission by 1.002 — so a 100-point improvement in GRE increases the odds by about 26%. It is significant but not the most important factor.
+
+**GPA (OR = 2.23; 95% CI: 1.17 to 4.28; p = 0.015):** GPA is the most impactful continuous predictor. Each one-point increase in GPA more than doubles the odds of admission (OR = 2.23). The 95% CI ranges from 1.17 to 4.28 and does not include 1, confirming it is statistically significant.
+
+**rank2 (OR = 0.509; 95% CI: 0.274 to 0.946; p = 0.033):** Compared to applicants from rank-1 institutions (the reference group), applicants from rank-2 institutions have approximately half the odds of admission. This is statistically significant.
+
+**rank3 (OR = 0.262; 95% CI: 0.133 to 0.515; p < 0.001):** Applicants from rank-3 institutions have only about 26% of the odds of admission compared to rank-1 applicants — a very strong and highly significant effect.
+
+**rank4 (OR = 0.212; 95% CI: 0.093 to 0.481; p < 0.001):** Applicants from rank-4 institutions have only about 21% of the odds of admission compared to rank-1 applicants. This is the most striking finding — institutional prestige has a very large impact on admission, even after controlling for GRE and GPA.
+
+In summary, **rank is the most influential predictor** of admission, followed by GPA, then GRE. Where you went to undergrad matters enormously — more than test scores alone.
+
+---
+
+## Interaction Effect: GPA × Rank (2 marks)
+
+The hypothesis here is that GPA might matter more for applicants from lower-ranked institutions — perhaps a high GPA compensates for coming from a less prestigious school, or conversely, lower GPAs might be more tolerated if you are from a top institution.
+
+```{r interaction}
+logit_interaction <- glm(admit ~ gre + gpa * rank,
+                         data = binary,
+                         family = binomial(link = "logit"))
+
+summary(logit_interaction)
+
+cat("\nOdds Ratios for Interaction Model:\n")
+exp(cbind(OR = coef(logit_interaction), confint(logit_interaction)))
+
+cat("\nAIC Comparison:\n")
+cat("Base model AIC:", AIC(logit_model), "\n")
+cat("Interaction model AIC:", AIC(logit_interaction), "\n")
+
+anova(logit_model, logit_interaction, test = "Chisq")
+```
+
+**Interpretation of the interaction effect:**
+
+The interaction model adds three terms: `gpa:rank2`, `gpa:rank3`, and `gpa:rank4`, each representing how the effect of GPA differs for applicants from those rank groups compared to rank-1 applicants.
+
+Looking at the results, all three interaction coefficients are negative (`gpa:rank2` = −0.343, `gpa:rank3` = −0.515, `gpa:rank4` = −0.009) but none of them are statistically significant (p-values of 0.690, 0.579, and 0.994 respectively). The main effect of GPA also loses significance in this model (p = 0.134), which is expected when interactions are included as the main effect now represents the GPA effect only for rank-1 applicants.
+
+Most tellingly, the likelihood ratio test comparing the base model to the interaction model gives a chi-square statistic of 0.41 with 3 degrees of freedom and p = 0.939. This means the interaction terms add essentially no explanatory power. The AIC also goes up from 470.5 to 476.1, which confirms the interaction model is worse.
+
+So while the hypothesis was intuitive — that GPA might compensate for institutional prestige — the data do not support it. The effect of GPA on admission appears to be roughly the same regardless of what rank of institution the applicant attended. Institution rank has a large independent effect on admission, but it does not appear to moderate how much GPA matters.
+
+---
+
+```{r session}
+sessionInfo()
+```

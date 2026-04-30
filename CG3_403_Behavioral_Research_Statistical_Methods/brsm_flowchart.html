@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Statistical Test Selection — Full Reference</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #0d7a6b; --teal-light: #e6f5f2;
+    --purple: #5b3fa6; --purple-light: #f0ecfc;
+    --coral: #c94f2c; --coral-light: #fdf0ec;
+    --green: #2a6b3c; --green-light: #edf7f0;
+    --pink: #a63068; --pink-light: #fceef5;
+    --amber: #8a5a00; --amber-light: #fdf5e0;
+    --blue: #1a5fa8; --blue-light: #e8f1fb;
+    --gray: #3d3d3a; --gray-light: #f3f2ee;
+    --border: #ccc; --text: #1a1a1a; --text-muted: #555; --line: #aaa;
+    --font-sans: 'IBM Plex Sans', sans-serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans); background: #fff; color: var(--text); font-size: 13px; line-height: 1.4; }
+
+  @media print {
+    body { font-size: 10.5px; }
+    .no-print { display: none !important; }
+    .print-page { page-break-before: always; }
+    .print-page:first-of-type { page-break-before: auto; }
+    header, .branch-header, .ref-section-title, .ref-card-head, .node { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+
+  header {
+    background: var(--gray); color: #fff;
+    padding: 14px 36px 12px;
+    display: flex; justify-content: space-between; align-items: flex-end;
+    border-bottom: 3px solid #000;
+  }
+  header h1 { font-family: var(--font-mono); font-size: 19px; font-weight: 600; letter-spacing: -0.5px; }
+  header p { font-size: 10px; color: #bbb; font-family: var(--font-mono); margin-top: 2px; }
+  .print-btn {
+    background: #fff; color: var(--gray); border: none;
+    padding: 7px 16px; font-family: var(--font-mono); font-size: 11px;
+    font-weight: 600; cursor: pointer; letter-spacing: 0.5px; flex-shrink: 0;
+  }
+  .print-btn:hover { background: #eee; }
+
+  .page { max-width: 1100px; margin: 0 auto; padding: 22px 34px 48px; }
+  .page-title {
+    font-family: var(--font-mono); font-size: 10.5px; font-weight: 600;
+    letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-muted);
+    border-bottom: 1.5px solid #ddd; padding-bottom: 5px; margin-bottom: 16px;
+  }
+
+  /* start node */
+  .start-row { display: flex; justify-content: center; }
+  .start-node {
+    background: var(--gray); color: #fff;
+    font-family: var(--font-mono); font-weight: 600; font-size: 12px;
+    padding: 8px 26px; border-radius: 22px; text-align: center;
+  }
+  .connector-down { display: flex; justify-content: center; padding: 4px 0; }
+  .connector-down::after { content: ''; display: block; width: 1.5px; height: 18px; background: var(--line); }
+
+  /* branch grid */
+  .fan-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .branches { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .branch { display: flex; flex-direction: column; }
+  .branch-header {
+    font-family: var(--font-mono); font-size: 9px; font-weight: 600;
+    letter-spacing: 1px; text-transform: uppercase; text-align: center;
+    padding: 5px 8px; border-radius: 4px 4px 0 0; border: 1.5px solid; border-bottom: none;
+  }
+  .branch-header.teal  { background: var(--teal);  color: #fff; border-color: var(--teal); }
+  .branch-header.green { background: var(--green); color: #fff; border-color: var(--green); }
+  .branch-header.pink  { background: var(--pink);  color: #fff; border-color: var(--pink); }
+  .branch-body {
+    border: 1.5px solid var(--border); border-radius: 0 0 6px 6px;
+    padding: 10px 9px; display: flex; flex-direction: column; height: 100%;
+  }
+  .branch-body.teal  { border-color: var(--teal); }
+  .branch-body.green { border-color: var(--green); }
+  .branch-body.pink  { border-color: var(--pink); }
+
+  /* nodes */
+  .node { border: 1.5px solid var(--border); border-radius: 6px; padding: 6px 9px; text-align: center; }
+  .node-title { font-weight: 600; font-size: 10.5px; display: block; }
+  .node-sub   { font-size: 9px; color: var(--text-muted); display: block; margin-top: 1px; font-style: italic; }
+  .node-def   { font-size: 8px; color: #3a3a3a; display: block; margin-top: 3px; text-align: left; line-height: 1.35; border-top: 1px dashed #ddd; padding-top: 3px; }
+
+  .node-decision { background: var(--teal-light);   border-color: var(--teal); }
+  .node-decision .node-title { color: var(--teal); }
+  .node-decision .node-sub   { color: #2a7a6e; }
+  .node-param    { background: var(--purple-light); border-color: var(--purple); }
+  .node-param .node-title { color: var(--purple); }
+  .node-nonparam { background: var(--coral-light);  border-color: var(--coral); }
+  .node-nonparam .node-title { color: var(--coral); }
+  .node-reg      { background: var(--green-light);  border-color: var(--green); }
+  .node-reg .node-title { color: var(--green); }
+  .node-cat      { background: var(--pink-light);   border-color: var(--pink); }
+  .node-cat .node-title { color: var(--pink); }
+  .node-warn     { background: var(--amber-light);  border-color: var(--amber); }
+  .node-warn .node-title { color: var(--amber); }
+  .node-bayes    { background: var(--blue-light);   border-color: var(--blue); }
+  .node-bayes .node-title { color: var(--blue); }
+  .node-start-end { background: var(--gray-light); border-color: var(--gray); border-radius: 22px; }
+  .node-start-end .node-title { color: var(--gray); }
+
+  .flow-step { display: flex; flex-direction: column; align-items: center; }
+  .arrow-down { font-size: 13px; line-height: 1; color: var(--line); text-align: center; padding: 2px 0; }
+  .split { display: grid; gap: 5px; width: 100%; }
+  .split-2 { grid-template-columns: 1fr 1fr; }
+  .split-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .split-wrapper { display: flex; flex-direction: column; align-items: center; width: 100%; }
+  .section-label {
+    font-family: var(--font-mono); font-size: 8px; font-weight: 600;
+    letter-spacing: 1px; text-transform: uppercase; text-align: center; padding: 3px 0 1px;
+  }
+  .assumption-box {
+    border: 1.5px dashed var(--teal); border-radius: 6px; padding: 5px 7px;
+    background: #f5fdfc; font-size: 8.5px; color: var(--teal); text-align: center;
+  }
+  .assumption-box strong { display: block; font-size: 9px; margin-bottom: 2px; }
+  .violated-box {
+    border: 1.5px dashed var(--coral); border-radius: 6px; padding: 5px 7px;
+    background: #fff8f6; font-size: 8.5px; color: var(--coral); text-align: center;
+  }
+  .violated-box strong { display: block; font-size: 9px; margin-bottom: 2px; }
+
+  .footer-section { margin-top: 16px; padding-top: 14px; border-top: 1.5px solid #ddd; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+  .legend { margin-top: 16px; padding-top: 12px; border-top: 1.5px solid #ddd; }
+  .legend-title { font-family: var(--font-mono); font-size: 9px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 7px; }
+  .legend-grid { display: flex; flex-wrap: wrap; gap: 5px 16px; }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 9.5px; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; border: 1.5px solid; }
+
+  hr.page-rule { border: none; border-top: 2px solid var(--gray); margin: 0; }
+
+  /* ══ REFERENCE PAGES ══ */
+  .ref-section { margin-bottom: 26px; }
+  .ref-section-title {
+    font-family: var(--font-mono); font-size: 10.5px; font-weight: 600;
+    letter-spacing: 1.5px; text-transform: uppercase;
+    padding: 5px 11px; border-left: 4px solid; margin-bottom: 11px;
+  }
+  .ref-section-title.teal   { color: var(--teal);   border-color: var(--teal);   background: var(--teal-light); }
+  .ref-section-title.purple { color: var(--purple); border-color: var(--purple); background: var(--purple-light); }
+  .ref-section-title.coral  { color: var(--coral);  border-color: var(--coral);  background: var(--coral-light); }
+  .ref-section-title.green  { color: var(--green);  border-color: var(--green);  background: var(--green-light); }
+  .ref-section-title.pink   { color: var(--pink);   border-color: var(--pink);   background: var(--pink-light); }
+  .ref-section-title.amber  { color: var(--amber);  border-color: var(--amber);  background: var(--amber-light); }
+  .ref-section-title.blue   { color: var(--blue);   border-color: var(--blue);   background: var(--blue-light); }
+
+  .ref-grid   { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .ref-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+
+  .ref-card { border: 1.5px solid var(--border); border-radius: 6px; overflow: hidden; }
+  .ref-card-head {
+    padding: 6px 10px; font-weight: 600; font-size: 11px;
+    display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+  }
+  .badge {
+    font-family: var(--font-mono); font-size: 7.5px; font-weight: 600;
+    padding: 1px 5px; border-radius: 3px; letter-spacing: 0.5px; text-transform: uppercase;
+  }
+  .ref-card-body { padding: 8px 10px; }
+  .ref-row { margin-bottom: 5px; }
+  .ref-row:last-child { margin-bottom: 0; }
+  .ref-label {
+    font-family: var(--font-mono); font-size: 7.5px; font-weight: 600;
+    letter-spacing: 0.8px; text-transform: uppercase; color: var(--text-muted);
+    display: block; margin-bottom: 1px;
+  }
+  .ref-text { font-size: 10px; line-height: 1.45; }
+  .ref-formula {
+    font-family: var(--font-mono); font-size: 9.5px;
+    background: var(--gray-light); padding: 2px 6px;
+    border-radius: 4px; display: inline-block; margin-top: 2px;
+  }
+  .ref-example {
+    background: #f8f8f6; border-left: 3px solid #ccc;
+    padding: 5px 8px; margin-top: 4px; font-size: 9.5px;
+    line-height: 1.45; border-radius: 0 4px 4px 0;
+  }
+  .ref-example em { color: var(--text-muted); font-style: italic; }
+
+  .rc-param .ref-card-head { background: var(--purple-light); color: var(--purple); border-bottom: 1.5px solid var(--purple); }
+  .rc-nonp  .ref-card-head { background: var(--coral-light);  color: var(--coral);  border-bottom: 1.5px solid var(--coral); }
+  .rc-reg   .ref-card-head { background: var(--green-light);  color: var(--green);  border-bottom: 1.5px solid var(--green); }
+  .rc-cat   .ref-card-head { background: var(--pink-light);   color: var(--pink);   border-bottom: 1.5px solid var(--pink); }
+  .rc-warn  .ref-card-head { background: var(--amber-light);  color: var(--amber);  border-bottom: 1.5px solid var(--amber); }
+  .rc-bayes .ref-card-head { background: var(--blue-light);   color: var(--blue);   border-bottom: 1.5px solid var(--blue); }
+  .rc-param { border-color: var(--purple); }
+  .rc-nonp  { border-color: var(--coral); }
+  .rc-reg   { border-color: var(--green); }
+  .rc-cat   { border-color: var(--pink); }
+  .rc-warn  { border-color: var(--amber); }
+  .rc-bayes { border-color: var(--blue); }
+
+  .es-table { width: 100%; border-collapse: collapse; font-size: 9.5px; margin-top: 4px; }
+  .es-table th { background: var(--gray-light); font-weight: 600; padding: 3px 6px; text-align: left; border: 1px solid #ddd; font-family: var(--font-mono); font-size: 8px; }
+  .es-table td { padding: 3px 6px; border: 1px solid #eee; font-size: 9.5px; }
+  .es-table tr:nth-child(even) td { background: #fafafa; }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Statistical Test Selection — Flowchart &amp; Reference</h1>
+    <p>Sources: BRSM Lectures · Hypothesis Testing · ANOVA · Non-parametric Tests · GLM · Regression · Bayesian Statistics</p>
+  </div>
+  <button class="print-btn no-print" onclick="window.print()">⬜ Print / Save PDF</button>
+</header>
+
+<!-- ══════════════════════════════════════
+     PAGE 1 — FLOWCHART
+     ══════════════════════════════════════ -->
+<div class="page print-page">
+  <div class="page-title">Page 1 of 3 — Decision Flowchart (with micro-definitions)</div>
+
+  <div class="start-row"><div class="start-node">START — What is your research goal?</div></div>
+  <div class="connector-down"></div>
+
+  <div class="fan-row">
+    <div class="branch-header teal">① Compare groups / means</div>
+    <div class="branch-header green">② Predict / model outcome</div>
+    <div class="branch-header pink">③ Test association / relationship</div>
+  </div>
+
+  <div class="branches">
+
+    <!-- ── BRANCH 1: COMPARE ── -->
+    <div class="branch">
+      <div class="branch-body teal">
+
+        <div class="flow-step">
+          <div class="node node-decision" style="width:100%">
+            <span class="node-title">Check parametric assumptions</span>
+            <span class="node-sub">Normality: Shapiro-Wilk / KS test &nbsp;·&nbsp; Equal variances: Levene's / Hartley's F-max</span>
+          </div>
+        </div>
+
+        <div class="split-wrapper">
+          <div class="arrow-down">↓</div>
+          <div class="split split-2" style="margin-bottom:4px">
+            <div class="assumption-box"><strong>✓ Assumptions met</strong>Normal dist. + equal variances → use parametric tests</div>
+            <div class="violated-box"><strong>✗ Violated</strong>Non-normal or unequal var → skip to non-parametric</div>
+          </div>
+        </div>
+
+        <div class="section-label" style="color:var(--purple)">Parametric tests (interval/ratio DV)</div>
+        <div class="arrow-down">↓</div>
+
+        <div class="node node-decision" style="width:100%">
+          <span class="node-title">How many groups?</span>
+        </div>
+
+        <div class="split-wrapper">
+          <div class="arrow-down">↓</div>
+          <div class="split split-2">
+
+            <!-- 2 groups -->
+            <div class="flow-step">
+              <div class="node node-decision" style="width:100%">
+                <span class="node-title">2 groups — Related?</span>
+                <span class="node-sub">within vs between subjects</span>
+              </div>
+              <div class="arrow-down">↓</div>
+              <div class="split split-2" style="gap:4px">
+                <div class="node node-param">
+                  <span class="node-title">Paired t-test</span>
+                  <span class="node-sub">Within / matched</span>
+                  <span class="node-def">Same participants at 2 timepoints. Tests mean of difference scores. t = M_d/(SD_d/√n). Effect: Cohen's d.</span>
+                </div>
+                <div class="node node-param">
+                  <span class="node-title">Independent t-test</span>
+                  <span class="node-sub">Between subjects</span>
+                  <span class="node-def">Two separate groups. t = (M₁−M₂)/SE_diff. Assumes equal variance (else use Welch t). Effect: Cohen's d.</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- >2 groups -->
+            <div class="flow-step">
+              <div class="node node-decision" style="width:100%">
+                <span class="node-title">&gt;2 groups</span>
+                <span class="node-sub">Homogeneous variances? (Levene's)</span>
+              </div>
+              <div class="arrow-down">↓</div>
+              <div class="split split-3" style="gap:3px">
+                <div class="node node-param">
+                  <span class="node-title">One-way ANOVA</span>
+                  <span class="node-sub">Between, equal var</span>
+                  <span class="node-def">F = MS_between/MS_within. Post-hoc if sig. Effect: η².</span>
+                </div>
+                <div class="node node-param">
+                  <span class="node-title">Welch ANOVA</span>
+                  <span class="node-sub">Unequal variances</span>
+                  <span class="node-def">Robust alt. when Levene's is significant. Post-hoc: Games-Howell.</span>
+                </div>
+                <div class="node node-param">
+                  <span class="node-title">RM ANOVA</span>
+                  <span class="node-sub">Within subjects</span>
+                  <span class="node-def">≥3 time points, same Ps. Check sphericity (Mauchly's). Correction: Greenhouse-Geisser.</span>
+                </div>
+              </div>
+              <div class="arrow-down">↓</div>
+              <div class="node node-warn" style="width:100%">
+                <span class="node-title">Multiple DVs? → MANOVA</span>
+                <span class="node-def">Tests group differences on ≥2 DVs simultaneously. Stat: Wilks' Λ. Follow with per-DV ANOVAs if significant.</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="section-label" style="color:var(--coral); margin-top:8px">Non-parametric alternatives (ordinal / non-normal)</div>
+        <div class="arrow-down">↓</div>
+        <div class="split split-2">
+          <div class="flow-step">
+            <div class="node node-nonparam" style="width:100%"><span class="node-title">2 groups</span></div>
+            <div class="arrow-down">↓</div>
+            <div class="split split-2" style="gap:4px">
+              <div class="node node-nonparam">
+                <span class="node-title">Mann-Whitney U</span>
+                <span class="node-sub">Independent</span>
+                <span class="node-def">Ranks all scores from both groups combined; compares rank sums. Alt to independent t-test. Effect: r = Z/√N.</span>
+              </div>
+              <div class="node node-nonparam">
+                <span class="node-title">Wilcoxon SR</span>
+                <span class="node-sub">Related / paired</span>
+                <span class="node-def">Ranks absolute differences; compares +/− rank sums. H₀: median diff = 0. Alt to paired t-test.</span>
+              </div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="node node-nonparam" style="width:100%"><span class="node-title">&gt;2 groups</span></div>
+            <div class="arrow-down">↓</div>
+            <div class="split split-2" style="gap:4px">
+              <div class="node node-nonparam">
+                <span class="node-title">Kruskal-Wallis</span>
+                <span class="node-sub">Between subjects</span>
+                <span class="node-def">Pools &amp; ranks all scores; tests rank-sum differences across ≥3 groups. Alt to one-way ANOVA. Stat: H.</span>
+              </div>
+              <div class="node node-nonparam">
+                <span class="node-title">Friedman ANOVA</span>
+                <span class="node-sub">Within subjects</span>
+                <span class="node-def">Ranks within each participant across conditions. Alt to RM ANOVA. Stat: M = [12/Nk(k+1)]·ΣR²ᵢ − 3N(k+1).</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="arrow-down" style="margin-top:5px">↓</div>
+        <div class="section-label" style="color:var(--coral)">Categorical data (non-param)</div>
+        <div class="split split-2" style="gap:4px; margin-top:3px">
+          <div class="node node-nonparam">
+            <span class="node-title">Chi-square</span>
+            <span class="node-sub">Between subjects</span>
+            <span class="node-def">χ²=Σ(O−E)²/E. Tests if 2 categorical vars are independent. df=(r−1)(c−1). Effect: Cramér's V or φ.</span>
+          </div>
+          <div class="node node-nonparam">
+            <span class="node-title">Binomial sign test</span>
+            <span class="node-sub">Within subjects</span>
+            <span class="node-def">Tests if count of +/− changes differs from 50/50. H₀: p=0.5. Uses binomial distribution.</span>
+          </div>
+        </div>
+
+      </div>
+    </div><!-- end branch 1 -->
+
+    <!-- ── BRANCH 2: PREDICT ── -->
+    <div class="branch">
+      <div class="branch-body green">
+
+        <div class="flow-step">
+          <div class="node node-decision" style="width:100%">
+            <span class="node-title">What type of outcome (DV)?</span>
+            <span class="node-sub">Determines the model family</span>
+          </div>
+        </div>
+        <div class="split-wrapper">
+          <div class="arrow-down">↓</div>
+          <div class="split split-2">
+
+            <!-- continuous -->
+            <div class="flow-step">
+              <div class="node node-reg" style="width:100%">
+                <span class="node-title">Continuous DV</span>
+                <span class="node-sub">interval / ratio scale</span>
+              </div>
+              <div class="arrow-down">↓</div>
+              <div class="node node-decision" style="width:100%">
+                <span class="node-title">How many predictors?</span>
+                <span class="node-sub">Check multicollinearity (VIF)</span>
+              </div>
+              <div class="arrow-down">↓</div>
+              <div class="split split-2" style="gap:4px">
+                <div class="node node-reg">
+                  <span class="node-title">Simple linear regression</span>
+                  <span class="node-sub">1 predictor</span>
+                  <span class="node-def">Y = b₀ + b₁X + ε. OLS minimises SSR. Output: R², F, β, p. For 1 predictor, R² = r².</span>
+                </div>
+                <div class="node node-reg">
+                  <span class="node-title">Multiple regression</span>
+                  <span class="node-sub">&gt;1 predictors</span>
+                  <span class="node-def">Y = b₀ + Σbᵢxᵢ + ε. Each β = unique contribution. Use adjusted R². Check VIF &gt; 10 for multicollinearity.</span>
+                </div>
+              </div>
+              <div class="arrow-down">↓</div>
+              <div class="node node-warn" style="width:100%">
+                <span class="node-title">VIF &gt; 10? → Multicollinearity</span>
+                <span class="node-def">Predictors too correlated; coefficients unstable. Solution: drop predictors, combine, or run PCA/FA first to create orthogonal components.</span>
+              </div>
+            </div>
+
+            <!-- binary/count -->
+            <div class="flow-step">
+              <div class="node node-reg" style="width:100%">
+                <span class="node-title">Binary / Count DV</span>
+                <span class="node-sub">GLM with link function</span>
+              </div>
+              <div class="arrow-down">↓</div>
+              <div class="split split-2" style="gap:4px">
+                <div class="node node-reg">
+                  <span class="node-title">Logistic regression</span>
+                  <span class="node-sub">Binary DV (0/1)</span>
+                  <span class="node-def">log(p/1−p) = b₀+Σbᵢxᵢ. MLE estimation. Output: odds ratios exp(β), Wald stat, model χ².</span>
+                </div>
+                <div class="node node-reg">
+                  <span class="node-title">Poisson regression</span>
+                  <span class="node-sub">Count / rate DV</span>
+                  <span class="node-def">Models non-negative integer counts. Log link. Check overdispersion; if present → negative binomial.</span>
+                </div>
+              </div>
+              <div class="arrow-down">↓</div>
+              <div class="node node-reg" style="width:100%">
+                <span class="node-title">Ordinal / multinomial DV?</span>
+                <span class="node-def">Ordinal logistic: ordered categories (low/med/high). Multinomial logistic: &gt;2 unordered outcome categories.</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div style="margin-top:9px">
+          <div class="section-label" style="color:var(--green)">Dimension reduction (pre-processing)</div>
+          <div class="arrow-down">↓</div>
+          <div class="split split-2" style="gap:5px">
+            <div class="node node-reg">
+              <span class="node-title">PCA</span>
+              <span class="node-sub">Unsupervised, no rotation</span>
+              <span class="node-def">Orthogonal components explaining max variance. Use scree plot / Kaiser rule (eigenvalue &gt; 1). Data-driven, no theory needed.</span>
+            </div>
+            <div class="node node-reg">
+              <span class="node-title">Factor Analysis</span>
+              <span class="node-sub">Latent factors, theory-driven</span>
+              <span class="node-def">Identifies latent constructs from shared variance. Rotation: varimax (orthogonal) or oblimin (correlated). Interpretable factors.</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:9px">
+          <div class="node node-warn" style="width:100%">
+            <span class="node-title">Regression assumptions to check</span>
+            <span class="node-def">① Linearity (residual plots) ② Normality of residuals (Q-Q) ③ Homoscedasticity (Breusch-Pagan) ④ Independence ⑤ No multicollinearity (VIF)</span>
+          </div>
+        </div>
+
+      </div>
+    </div><!-- end branch 2 -->
+
+    <!-- ── BRANCH 3: ASSOCIATION ── -->
+    <div class="branch">
+      <div class="branch-body pink">
+
+        <div class="flow-step">
+          <div class="node node-decision" style="width:100%">
+            <span class="node-title">What are your variable types?</span>
+          </div>
+        </div>
+        <div class="arrow-down">↓</div>
+
+        <div class="section-label" style="color:var(--pink)">Both categorical</div>
+        <div class="flow-step">
+          <div class="node node-decision" style="width:100%">
+            <span class="node-title">Expected freq ≥ 5 in all cells?</span>
+            <span class="node-sub">Rule of thumb for chi-square validity</span>
+          </div>
+          <div class="arrow-down">↓</div>
+          <div class="split split-2" style="gap:4px">
+            <div class="node node-cat">
+              <span class="node-title">Chi-square</span>
+              <span class="node-sub">Independence test</span>
+              <span class="node-def">χ²=Σ(O−E)²/E. df=(r−1)(c−1). Effect: Cramér's V (large tables) or φ (2×2). e.g., gender × comfort with public speaking.</span>
+            </div>
+            <div class="node node-cat">
+              <span class="node-title">Fisher's exact test</span>
+              <span class="node-sub">Small n / 2×2 table</span>
+              <span class="node-def">Exact p-value from hypergeometric distribution. Use when any expected cell &lt; 5 or total n &lt; 20. No approximation needed.</span>
+            </div>
+          </div>
+          <div class="arrow-down">↓</div>
+          <div class="node node-cat" style="width:100%">
+            <span class="node-title">Goodness-of-fit chi-square</span>
+            <span class="node-def">Tests if a single categorical variable matches a hypothesised distribution. df = k−1. e.g., are card suits equally distributed?</span>
+          </div>
+        </div>
+
+        <div style="margin-top:9px">
+          <div class="section-label" style="color:var(--pink)">Both continuous</div>
+          <div class="flow-step">
+            <div class="node node-decision" style="width:100%">
+              <span class="node-title">Both variables normally distributed?</span>
+            </div>
+            <div class="arrow-down">↓</div>
+            <div class="split split-2" style="gap:4px">
+              <div class="node node-cat">
+                <span class="node-title">Pearson's r</span>
+                <span class="node-sub">Parametric</span>
+                <span class="node-def">Linear association, −1 to +1. Assumes bivariate normality. r² = shared variance. For 1 predictor in regression, r² = R².</span>
+              </div>
+              <div class="node node-cat">
+                <span class="node-title">Spearman's ρ</span>
+                <span class="node-sub">Non-parametric</span>
+                <span class="node-def">Pearson r on ranks. Measures monotonic association. Robust to outliers. Use for ordinal or non-normal data.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:9px">
+          <div class="section-label" style="color:var(--pink)">Cat. predictor × Continuous outcome</div>
+          <div class="arrow-down">↓</div>
+          <div class="node node-cat" style="width:100%">
+            <span class="node-title">Point-biserial / Logistic regression</span>
+            <span class="node-def">Binary predictor + continuous DV → point-biserial r (special case of Pearson). Binary outcome → logistic regression.</span>
+          </div>
+        </div>
+
+        <div style="margin-top:9px">
+          <div class="node node-warn" style="width:100%">
+            <span class="node-title">Permutation / Randomisation tests</span>
+            <span class="node-def">Distribution-free. Shuffle observed data many times → build null distribution → compare observed stat. No parametric assumptions needed.</span>
+          </div>
+        </div>
+
+      </div>
+    </div><!-- end branch 3 -->
+
+  </div><!-- end branches -->
+
+  <div class="footer-section">
+    <div class="node node-warn" style="width:100%">
+      <span class="node-title">Multiple tests? → Apply corrections</span>
+      <span class="node-def">k tests at α=0.05 inflates error to 1−(0.95)^k. Bonferroni: α/k (conservative). FDR/Benjamini-Hochberg: controls false discovery rate (less conservative). Holm-Bonferroni: step-down compromise.</span>
+    </div>
+    <div class="node node-bayes" style="width:100%">
+      <span class="node-title">Bayesian alternative (any test)</span>
+      <span class="node-def">Prior + likelihood → posterior. Bayes Factor BF₁₀: &gt;3 moderate evidence for H₁, &gt;10 strong. Reports credible intervals (CrI) not p-values. Bayesian paired t-test replaces frequentist equivalent.</span>
+    </div>
+  </div>
+
+  <div style="margin-top:12px">
+    <div class="node node-start-end" style="width:100%; border-radius:6px">
+      <span class="node-title" style="color:var(--gray)">All tests share the same logic</span>
+      <span class="node-sub">Define H₀/H₁ → Set α (0.05) → Compute test statistic → Get p-value → Report effect size (d, η², r, R²) → Check power (1−β)</span>
+    </div>
+  </div>
+
+  <div class="legend">
+    <div class="legend-title">Legend</div>
+    <div class="legend-grid">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--teal-light);border-color:var(--teal)"></div><span>Decision / question</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--purple-light);border-color:var(--purple)"></div><span>Parametric test</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--coral-light);border-color:var(--coral)"></div><span>Non-parametric test</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--green-light);border-color:var(--green)"></div><span>Regression / GLM</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--pink-light);border-color:var(--pink)"></div><span>Categorical / association</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--amber-light);border-color:var(--amber)"></div><span>Caution / correction</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--blue-light);border-color:var(--blue)"></div><span>Bayesian framework</span></div>
+    </div>
+  </div>
+
+</div><!-- end page 1 -->
+<hr class="page-rule">
+
+<!-- ══════════════════════════════════════
+     PAGE 2 — PARAMETRIC & NON-PARAMETRIC
+     ══════════════════════════════════════ -->
+<div class="page print-page">
+  <div class="page-title">Page 2 of 3 — Parametric &amp; Non-parametric Tests: Definitions, Formulas &amp; Examples</div>
+
+  <div class="ref-section">
+    <div class="ref-section-title purple">Parametric Tests</div>
+    <div class="ref-grid">
+
+      <div class="ref-card rc-param">
+        <div class="ref-card-head">Independent t-test <span class="badge" style="background:var(--purple-light);color:var(--purple)">Parametric</span></div>
+        <div class="ref-card-body">
+          <div class="ref-row"><span class="ref-label">Definition</span><span class="ref-text">Tests whether the means of two independent, unrelated groups differ significantly. Assumes normality within each group and homogeneity of variance.</span></div>
+          <div class="ref-row"><span class="ref-label">When to use</span><span class="ref-text">Two separate groups; continuous interval/ratio DV; parametric assumptions met.</span></div>
+          <div class="ref-row"><span class="ref-label">Formula</span><span class="ref-formula">t = (M₁ − M₂) / SE_diff &nbsp;·&nbsp; df = n₁ + n₂ − 2</span></div>
+          <div class="ref-row"><span class="ref-label">Effect size</span><span class="ref-text">Cohen's d = (M₁−M₂)/SD_pooled. Trivial &lt;0.1, small 0.1–0.3, moderate 0.3–0.5, large &gt;0.5.</span></div>
+          <div class="ref-example"><em>Example:</em> Do male and female students differ in exam scores? IV = gender (2 levels), DV = score (continuous).</div>
+        </div>
+      </div>
+
+      <div class="ref-card rc-param">
+        <div class="ref-card-head">Paired (Related) t-test <span class="badge" style="background:var(--purple-light);color:var(--purple)">Parametric</span></div>
+        <div class="ref-card-body">
+          <div class="ref-row"><span class="ref-label">Definition</span><span class="ref-text">Compares means from the same participants at two timepoints, or from matched pairs. Operates on the difference scores d = X₁ − X₂.</span></div>
+          <div class="ref-row"><span class="ref-label">When to use</span><span class="ref-text">Within-subjects or matched pairs design. Normality of difference scores required.</span></div>
+          <div class="ref-row"><span class="ref-label">Formula</span><span class="ref-formula">t = M_d / (SD_d / √n) &nbsp;·&nbsp; df = n − 1</span></div>
+          <div class="ref-row"><span class="ref-label">Effect size</span><span class="ref-text">Cohen's d = M_d / SD_d.</span></div>
+          <div class="ref-example"><em>Example:</em> Do knowledge scores improve after a group discussion? Pre-test M=83, post-test M=84, n=1000. Significant statistically but d is tiny — always report effect size!</div>
+        </div>
+      </div>
+
+      <div class="ref-card rc-param">
+        <div class="ref-card-head">One-way ANOVA <span class="badge" style="background:var(--purple-light);color:var(--purple)">Parametric</span></div>
+        <div class="ref-card-body">
+          <div class="ref-row"><span class="ref-label">Definition</span><span class="ref-text">Tests whether at least one group mean differs among ≥3 independent groups. Partitions total variance into between-group (SS_b) and within-group (SS_w) components.</span></div>
+          <div class="ref-row"><span class="ref-label">Assumptions</span><span class="ref-text">Normality (Shapiro-Wilk); homogeneity of variance (Levene's). Robust for n &gt; 25/group. If largest variance &lt; 4–5× smallest, ANOVA results remain valid.</span></div>
+          <div class="ref-row"><span class="ref-label">Formula</span><span class="ref-formula">F = MS_between / MS_within &nbsp;·&nbsp; df_b = G−1, df_w = N−G</span></div>
+          <div class="ref-row"><span class="ref-label">Post-hoc</span><span class="ref-text">Only if F is significant: Tukey HSD, Bonferroni, or Games-Howell (unequal n/var).</span></div>
+          <div class="ref-row"><span class="ref-label">Effect size</span><span class="ref-text">η² = SS_between / SS_total. Small: 0.01, medium: 0.06, large: 0.14.</span></div>
+          <div class="ref-example"><em>Example:</em> Do three teaching methods (lecture, flipped, online) produce different exam averages? IV = method (3 levels), DV = score.</div>
+        </div>
+      </div>
+
+      <div class="ref-card rc-param">
+        <div class="ref-card-head">Repeated Measures ANOVA <span class="badge" style="background:var(--purple-light);color:var(--purple)">Parametric</span></div>
+        <div class="ref-card-body">
+          <div class="ref-row"><span class="ref-label">Definition</span><span class="ref-text">ANOVA for within-subjects designs: same participants measured ≥3 times. Removes individual differences from error variance → higher power than between-subjects ANOVA.</span></div>
+          <div class="ref-row"><span class="ref-label">Key assumption</span><span class="ref-text">Sphericity — variances of all pairwise difference scores must be equal. Test: Mauchly's W. If violated: Greenhouse-Geisser or Huynh-Feldt epsilon correction.</span></div>
+          <div class="ref-row"><span class="ref-label">Effect size</span><span class="ref-text">Partial η² or generalised η².</span></div>
+          <div class="ref-example"><em>Example:</em> Anxiety scores at baseline, 4 weeks, and 8 weeks of therapy — same participants. Check sphericity before reporting F.</div>
+        </div>
+      </div>
+
+      <div class="ref-card rc-param">
+        <div class="ref-card-head">Welch ANOVA <span class="badge" style="background:var(--purple-light);color:var(--purple)">Parametric</span></div>
+        <div class="ref-card-body">
+          <div class="ref-row"><span class="ref-label">Definition</span><span class="ref-text">Robust alternative to one-way ANOVA that does not assume equal variances. Uses weighted group means. Recommended when Levene's test is significant.</span></div>
+          <div class="ref-row"><span class="ref-label">Post-hoc</span><span class="ref-text">Games-Howell: does not assume equal variances or equal sample sizes.</span></div>
+          <div class="ref-example"><em>Example:</em> Comparing salaries across 4 departments where one department has much higher variance than others → Welch ANOVA + Games-Howell.</div>
+        </div>
+      </div>
+
+      <div class="ref-card rc-param">
+        <div class="ref-card-head">MANOVA <span class="badge" style="background:var(--purple-light);color:var(--purple)">Parametric</span></div>
+        <div class="ref-card-body">
+          <div class="ref-row"><span class="ref-label">Definition</span><span class="ref-text">Multivariate ANOVA: tests group differences on ≥2 DVs simultaneously. Controls family-wise Type I error across DVs. Requires multivariate normality.</span></div>
+          <div class="ref-row"><span class="ref-label">Statistics</span><span class="ref-text">Wilks' Λ (most common), Pillai's trace (most robust), Hotelling's T², Roy's largest root.</span></div>
+          <div class="ref-row"><span class="ref-label">Follow-up</span><span class="ref-text">If MANOVA is significant, run individual ANOVAs per DV with Bonferroni correction.</span></div>
+          <div class="ref-example"><em>Example:</em> Do three therapy types differ on both anxiety AND depression simultaneously? One MANOVA instead of two separate ANOVAs.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="ref-section">
+    <div class="ref-section-title coral">Non-parametric Tests</div>
+    <div class="ref-grid">
+
+      <div class="ref-card rc-nonp">
+        <div class="ref-card-head">Mann-Whitney U Test <span class="badge" style="background:var(--coral-light);color:var(--coral)">Non-param</span></div>
+        <div class="ref-card-body">
+          <div class="ref-row"><span class="ref-label">Definition</span><span class="ref-text">Non-parametric equivalent of the independent t-test. Combines and ranks all scores from both groups; tests whether one group's ranks are systematically higher (i.e., different medians). Between-subjects design, skewed distributions, ordinal data.</span></div>
+          <div class="ref-row"><span class="ref-label">Assumption</span><span class="ref-text">A real difference between two populations should cause one sample's scores to be generally larger. If combined and ranked, larger ranks concentrate in one group.</span></div>
+          <div class="ref-row"><span class="ref-label">H₀</span><span class="ref-text">The two populations share an identical distribution (same median).</span></div>
+          <div class="ref-row"><span class="ref-label">Effect size</span><span class="ref-formula">r = Z / √N</span></div>
+          <div class="ref-example"><em>Example:</em> Pain ratings (1–10 Likert, skewed) for Drug A vs Drug B. Non-normal → Mann-Whitney U instead of independent t-test.</div>
+        </div>
+      </div>
+
+      <div class="ref-card rc-nonp">
+        <div class="ref-card-head">Wilcoxon Signed-Rank Test <span class="badge" style="background:var(--coral-light);color:var(--coral)">Non-param</span></div>
+        <div class="ref-card-body">
+          <div class="ref-row"><span class="ref-label">Definition</span><span class="ref-text">Non-parametric equivalent of the paired t-test. Computes difference scores, ranks their absolute values, then compares the sum of positive vs negative ranks. Within-subjects or matched pairs design.</span></div>
+          <div class="ref-row"><span class="ref-label">H₀</span><span class="ref-text">Population median difference = 0. Reject H₀ if observed W ≤ critical W value.</span></div>
+          <div class="ref-row"><span class="ref-label">Data level</span><span class="ref-text">Ordinal (rank order). Also valid for discrete related samples where parametric assumptions are violated.</span></div>
+          <div class="ref-example"><em>Example:</em> Did students perform better in mock exam vs final GRE? H₀: med diff = 0; H₁: med diff &gt; 0 (1-tailed). If paired differences are non-normal → Wilcoxon SR.</div>
+        </div>
+      </div>
+
+      <div class="ref-card rc-nonp">
+        <div class="ref-card-head">Kruskal-Wallis Test <span class="badge" style="background:var(--coral-light);color:var(--coral)">Non-param</span></div>
+        <div class="ref-card-body">
+          <div class="ref-row"><span class="ref-label">Definition</span><span class="ref-text">Non-parametric equivalent of one-way ANOVA. All scores from ≥3 independent groups are pooled and ranked; tests if rank sums differ significantly between groups.</span></div>
+          <div class="ref-row"><span class="ref-label">When to use</span><span class="ref-text">≥3 independent groups; ordinal DV or violated normality; use when ANOVA assumptions fail.</span></div>
+          <div class="ref-row"><span class="ref-label">Formula</span><span class="ref-formula">H = [12 / N(N+1)] × Σ(R²ₖ / nₖ) − 3(N+1)</span></div>
+          <div class="ref-example"><em>Example:</em> Job satisfaction (ordinal 1–5) across 3 departments. Non-normal data → Kruskal-Wallis (H statistic) instead of one-way ANOVA.</div>
+        </div>
+      </div>
+
+      <div class="ref-card rc-nonp">
+        <div class="ref-card-head">Friedman's ANOVA <span class="badge" style="background:var(--coral-light);color:var(--coral)">Non-param</span></div>
+        <div class="ref-card-body">
+          <div class="ref-row"><span class="ref-label">Definition</span><span class="ref-text">Non-parametric equivalent of repeated measures ANOVA. Ranks scores within each participant (block) across ≥3 conditions, then compares rank sums across conditions.</span></div>
+          <div class="ref-row"><span class="ref-label">Formula</span><span class="ref-formula">M = [12 / Nk(k+1)] × ΣR²ᵢ − 3N(k+1)</span></div>
+          <div class="ref-row"><span class="ref-label">Where</span><span class="ref-text">k = number of conditions, N = number of participants, Rᵢ = sum of ranks for condition i.</span></div>
+          <div class="ref-example"><em>Example:</em> 6 students rate 3 study strategies. Ranks within each student: Reread=1, Answer Qs=2, Create Qs=3. Friedman M=9.33, df=2, p=.009 → strategies differ significantly.</div>
+        </div>
+      </div>
+
+      <div class="ref-card rc-nonp">
+        <div class="ref-card-head">Chi-square Independence <span class="badge" style="background:var(--coral-light);color:var(--coral)">Categorical</span></div>
+        <div class="ref-card-body">
+          <div class="ref-row"><span class="ref-label">Definition</span><span class="ref-text">Tests whether two categorical variables are independent. Compares observed frequencies (O) to expected frequencies (E) assuming independence.</span></div>
+          <div class="ref-row"><span class="ref-label">Assumptions</span><span class="ref-text">Expected frequency ≥ 5 in each cell. df = (rows−1)(cols−1).</span></div>
+          <div class="ref-row"><span class="ref-label">Formula</span><span class="ref-formula">χ² = Σ (O − E)² / E &nbsp;·&nbsp; E = (row total × col total) / N</span></div>
+          <div class="ref-row"><span class="ref-label">Effect size</span><span class="ref-text">2×2: φ = √(χ²/n). Larger: Cramér's V = √(χ²/n·df*). Small=0.1, medium=0.3, large=0.5.</span></div>
+          <div class="ref-example"><em>Example:</em> Extroverts vs introverts — comfortable with public speaking? Extroverts: 10 comfortable / 40 not. Introverts: 40/10. χ²(2, n=150)=8.23, p&lt;.05, V=0.23 → moderate effect.</div>
+        </div>
+      </div>
+
+      <div class="ref-card rc-nonp">
+        <div class="ref-card-head">Binomial Sign Test <span class="badge" style="background:var(--coral-light);color:var(--coral)">Categorical</span></div>
+        <div class="ref-card-body">
+          <div class="ref-row"><span class="ref-label">Definition</span><span class="ref-text">Tests whether the proportion of positive change signs in a within-subjects design differs from 50% (chance). Uses the binomial distribution. The simplest non-parametric test for related pairs.</span></div>
+          <div class="ref-row"><span class="ref-label">H₀</span><span class="ref-text">p(positive change) = 0.5. Count positives (S); compare to binomial critical value.</span></div>
+          <div class="ref-row"><span class="ref-label">When to use</span><span class="ref-text">Only sign of change is available (not magnitude). Related pairs or matched design.</span></div>
+          <div class="ref-example"><em>Example:</em> After diet intervention, 18 of 20 participants lost weight (+). p(S≥18 | p=0.5) = 0.0002 → reject H₀, diet had a significant positive effect.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div><!-- end page 2 -->
+<hr class="page-rule">
+
+<!-- ══════════════════════════════════════
+     PAGE 3 — REGRESSION, ASSOCIATION & CORRECTIONS
+     ══════════════════════════════════════ -->
+<div class="page print-page">
+  <div class="page-title">Page 3 of 3 — Regression, GLM, Association Tests, Corrections &amp; Effect Sizes</div>
+
+  <div class="ref-section">
+    <div class="ref-section-title green">Regression &amp; GLM</div>
+    <div class="ref-grid">
+
+      <div class="ref-card rc-reg">
+        <div class="ref-card-head">Simple Linear Regression <span class="badge" style="background:var(--green-light);color:var(--green)">Regression</span></div>
+        <div class="ref-card-body">
+          <div class="ref-row"><span class="ref-label">Definition</span><span class="ref-text">Models the linear relationship between one continuous predictor (X) and one continuous outcome (Y). Uses Ordinary Least Squares (OLS) to find the line minimising the sum of squared residuals (SSR).</span></div>
+          <div class="ref-row"><span class="ref-label">Model</span><span class="ref-formula">Y = b₀ + b₁X + ε</span></div>
+          <div class="ref-row"><span class="ref-label">Key output</span><span class="ref-text">R² (proportion of variance explained), F-statistic (overall model), β₁ (slope = change in Y per 1-unit increase in X), p-values. Note: for 1 predictor, R² = r² (Pearson).</span></div>
+          <div class="ref-row"><span class="ref-label">Assumptions</span><span class="ref-text">Linearity, normality of residuals, homoscedasticity, independence of errors. Check with residual plots and Q-Q plots.</span></div>
+          <div class="ref-example"><em>Example (housing.csv):</em> Predict median_house_value from median_income alone. β₁ = slope ($ per unit income); R² = how much income explains price variation.</div>
+        </div>
+      </div>
+
+      <div class="ref-card rc-reg">
+        <div class="ref-card-head">Multiple Linear Regression <span class="badge" style="background:var(--green-light);color:var(--green)">Regression</span></div>
+        <div class="ref-card-body">
+          <div class="ref-row"><span class="ref-label">Definition</span><span class="ref-text">Extends simple regression to ≥2 predictors. Each β = unique contribution of that predictor holding all others constant (partial regression coefficient). Adjusted R² penalises for adding extra predictors.</span></div>
+          <div class="ref-row"><span class="ref-label">Model</span><span class="ref-formula">Y = b₀ + b₁X₁ + b₂X₂ + … + bₙXₙ + ε</span></div>
+          <div class="ref-row"><span class="ref-label">Multicollinearity</span><span class="ref-text">VIF &gt; 10 (or &gt; 5 strict): predictors too correlated; coefficients become unstable and uninterpretable. Solutions: remove redundant predictor, combine them, or run PCA/FA first to create orthogonal components.</span></div>
+          <div class="ref-example"><em>Example (housing.csv):</em> Predict house value from income, housing_median_age, total_rooms, population, and ocean_proximity simultaneously. Check each predictor's unique contribution via standardised β.</div>
+        </div>
+      </div>
+
+      <div class="ref-card rc-reg">
+        <div class="ref-card-head">Logistic Regression <span class="badge" style="background:var(--green-light);color:var(--green)">GLM</span></div>
+        <div class="ref-card-body">
+          <div class="ref-row"><span class="ref-label">Definition</span><span class="ref-text">Models the probability of a binary outcome (0/1) using a logistic link function (sigmoid). Estimates coefficients via Maximum Likelihood Estimation (MLE), not OLS. Coefficients are log-odds.</span></div>
+          <div class="ref-row"><span class="ref-label">Model</span><span class="ref-formula">log(p / 1−p) = b₀ + b₁X₁ + … + bₙXₙ</span></div>
+          <div class="ref-row"><span class="ref-label">Interpretation</span><span class="ref-text">exp(β) = odds ratio. OR &gt; 1: predictor increases odds of outcome. 1-unit increase in X multiplies odds by exp(β). Model significance: χ² likelihood ratio test.</span></div>
+          <div class="ref-row"><span class="ref-label">Output</span><span class="ref-text">Odds ratios, Wald statistic per predictor, Nagelkerke R², classification accuracy (confusion matrix), AUC-ROC.</span></div>
+          <div class="ref-example"><em>Example (binary.csv):</em> Predict admission (0/1) from GRE, GPA, and rank. Each 1-point GRE increase multiplies odds of admission by exp(β_gre). Higher GPA and lower rank → higher admission probability.</div>
+        </div>
+      </div>
+
+      <div class="ref-card rc-reg">
+        <div class="ref-card-head">PCA &amp; Factor Analysis <span class="badge" style="background:var(--green-light);color:var(--green)">Dimension Reduction</span></div>
+        <div class="ref-card-body">
+          <div class="ref-row"><span class="ref-label">PCA</span><span class="ref-text">Transforms correlated variables into orthogonal (uncorrelated) principal components ordered by variance explained. Data-driven. No theory assumed. Use scree plot or Kaiser rule (eigenvalue &gt; 1) to select components. Components are linear combinations of original variables.</span></div>
+          <div class="ref-row"><span class="ref-label">Factor Analysis</span><span class="ref-text">Identifies latent factors explaining shared (common) variance among observed variables. Theory-driven — you hypothesise what the factors represent. Rotation improves interpretability: varimax (orthogonal, uncorrelated factors) or oblimin (correlated factors allowed).</span></div>
+          <div class="ref-row"><span class="ref-label">Key difference</span><span class="ref-text">PCA explains total variance; FA explains only common variance. PCA = preprocessing tool for dimensionality reduction. FA = measurement model for latent constructs (e.g., psychological scales).</span></div>
+          <div class="ref-example"><em>Example:</em> 20-item personality questionnaire → FA reveals 5 latent factors (openness, conscientiousness…). Use factor scores as DVs in ANOVA. Alternatively, PCA on housing.csv variables to reduce multicollinearity before regression.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="ref-section">
+    <div class="ref-section-title pink">Association Tests</div>
+    <div class="ref-grid">
+
+      <div class="ref-card rc-cat">
+        <div class="ref-card-head">Pearson's r <span class="badge" style="background:var(--pink-light);color:var(--pink)">Parametric</span></div>
+        <div class="ref-card-body">
+          <div class="ref-row"><span class="ref-label">Definition</span><span class="ref-text">Measures strength and direction of the linear relationship between two continuous variables. Ranges −1 to +1. 0 = no linear relationship. Association only — does not imply causation.</span></div>
+          <div class="ref-row"><span class="ref-label">Assumptions</span><span class="ref-text">Both variables approximately normally distributed; linear relationship (check scatterplot — Anscombe's quartet!); no extreme outliers.</span></div>
+          <div class="ref-row"><span class="ref-label">Formula</span><span class="ref-formula">r = Σ[(xᵢ−x̄)(yᵢ−ȳ)] / [(n−1)·SD_x·SD_y]</span></div>
+          <div class="ref-row"><span class="ref-label">Effect sizes</span><span class="ref-text">|r|: small=0.1, medium=0.3, large=0.5. r² = proportion of shared variance. For 1-predictor regression: r² = R².</span></div>
+          <div class="ref-example"><em>Example:</em> Is there a linear relationship between hours studied and exam score? r = 0.62 → moderate-large positive relationship. r² = 0.38 → studying explains 38% of score variance.</div>
+        </div>
+      </div>
+
+      <div class="ref-card rc-cat">
+        <div class="ref-card-head">Spearman's ρ <span class="badge" style="background:var(--pink-light);color:var(--pink)">Non-parametric</span></div>
+        <div class="ref-card-body">
+          <div class="ref-row"><span class="ref-label">Definition</span><span class="ref-text">Non-parametric equivalent of Pearson's r. Computes Pearson correlation on rank-transformed data. Measures the strength of monotonic (not necessarily linear) association. Robust to outliers.</span></div>
+          <div class="ref-row"><span class="ref-label">When to use</span><span class="ref-text">Non-normal distributions, ordinal variables, or when outliers distort Pearson r. Use if scatterplot shows monotonic but non-linear trend.</span></div>
+          <div class="ref-row"><span class="ref-label">Formula</span><span class="ref-formula">ρ = 1 − [6Σd²ᵢ / n(n²−1)] &nbsp; (d = rank difference)</span></div>
+          <div class="ref-example"><em>Example:</em> Class rank (ordinal) vs anxiety level (ordinal Likert). Both ordinal → Spearman's ρ. Or: latitude vs temperature — skewed distribution → Spearman more appropriate than Pearson.</div>
+        </div>
+      </div>
+
+      <div class="ref-card rc-cat">
+        <div class="ref-card-head">Fisher's Exact Test <span class="badge" style="background:var(--pink-light);color:var(--pink)">Categorical</span></div>
+        <div class="ref-card-body">
+          <div class="ref-row"><span class="ref-label">Definition</span><span class="ref-text">Calculates the exact probability of observing the given 2×2 contingency table (or more extreme tables) given fixed marginal totals, using the hypergeometric distribution. Valid for any sample size — no approximation.</span></div>
+          <div class="ref-row"><span class="ref-label">When to use</span><span class="ref-text">2×2 tables where expected cell frequency &lt; 5 in any cell, or total n &lt; 20. Use instead of chi-square when its assumptions are violated.</span></div>
+          <div class="ref-row"><span class="ref-label">H₀</span><span class="ref-text">The two categorical variables are independent (same H₀ as chi-square).</span></div>
+          <div class="ref-example"><em>Example:</em> 12 patients: 3 on Drug A (2 recovered, 1 not), 9 on Drug B (3 recovered, 6 not). Small n → chi-square assumptions violated → Fisher's exact p = 0.54 → no significant difference.</div>
+        </div>
+      </div>
+
+      <div class="ref-card rc-cat">
+        <div class="ref-card-head">Chi-square Goodness-of-fit <span class="badge" style="background:var(--pink-light);color:var(--pink)">Categorical</span></div>
+        <div class="ref-card-body">
+          <div class="ref-row"><span class="ref-label">Definition</span><span class="ref-text">Tests whether a single categorical variable's observed frequencies match a hypothesised (expected) distribution. Unlike the independence test, only one variable is involved.</span></div>
+          <div class="ref-row"><span class="ref-label">Formula</span><span class="ref-formula">χ² = Σ (O − E)² / E &nbsp;·&nbsp; df = k − 1</span></div>
+          <div class="ref-example"><em>Example:</em> Are 100 cards dealt equally across 4 suits (expected: 25 each)? Observed: ♣20, ♥30, ♦25, ♠25. χ²(3) = (25+25+0+0)/25 = 2.0, p = .57 → no significant deviation from equal distribution.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="ref-section">
+    <div class="ref-section-title amber">Corrections, Bayesian Inference &amp; Hypothesis Testing Logic</div>
+    <div class="ref-grid">
+
+      <div class="ref-card rc-warn">
+        <div class="ref-card-head">Multiple Comparisons Corrections <span class="badge" style="background:var(--amber-light);color:var(--amber)">Caution</span></div>
+        <div class="ref-card-body">
+          <div class="ref-row"><span class="ref-label">Problem</span><span class="ref-text">Running k tests at α=0.05 inflates family-wise Type I error to 1−(0.95)^k. At k=14 tests this exceeds 50% — you're more likely than not to get at least one false positive by chance alone.</span></div>
+          <div class="ref-row"><span class="ref-label">Bonferroni</span><span class="ref-text">α_corrected = α / k. Very conservative. Best when k is small and all comparisons are planned. e.g., 20 tests → threshold p &lt; 0.0025 per test.</span></div>
+          <div class="ref-row"><span class="ref-label">Holm-Bonferroni</span><span class="ref-text">Step-down: rank p-values smallest to largest; apply sequentially tightened thresholds (α/k, α/(k−1), …). Less conservative than Bonferroni while still controlling FWER.</span></div>
+          <div class="ref-row"><span class="ref-label">FDR (Benjamini-Hochberg)</span><span class="ref-text">Controls expected proportion of false discoveries (not FWER). Less conservative; preferred in exploratory genomic or neuroimaging studies with hundreds of tests.</span></div>
+          <div class="ref-example"><em>Example:</em> Post-hoc comparisons after significant ANOVA with 4 groups = 6 pairwise tests. Bonferroni threshold: p &lt; 0.05/6 = 0.0083 per comparison.</div>
+        </div>
+      </div>
+
+      <div class="ref-card rc-bayes">
+        <div class="ref-card-head">Bayesian Inference <span class="badge" style="background:var(--blue-light);color:var(--blue)">Framework</span></div>
+        <div class="ref-card-body">
+          <div class="ref-row"><span class="ref-label">Definition</span><span class="ref-text">Updates prior beliefs with observed data (likelihood) to produce a posterior distribution over parameters. All conclusions are probabilistic statements about parameters, not about data given a null.</span></div>
+          <div class="ref-row"><span class="ref-label">Formula</span><span class="ref-formula">P(θ | data) ∝ P(data | θ) × P(θ)</span></div>
+          <div class="ref-row"><span class="ref-label">Bayes Factor BF₁₀</span><span class="ref-text">Ratio of marginal likelihoods. BF &gt; 3: moderate evidence for H₁. BF &gt; 10: strong. BF &lt; 1/3: evidence for H₀. BF = 1: no evidence either way. No arbitrary threshold unlike p &lt; 0.05.</span></div>
+          <div class="ref-row"><span class="ref-label">Credible intervals</span><span class="ref-text">A 95% CrI means there is 95% probability the true parameter lies within it — more intuitive than frequentist confidence intervals (which do not mean this).</span></div>
+          <div class="ref-row"><span class="ref-label">Bayesian paired t-test</span><span class="ref-text">Replaces frequentist paired t-test. Reports BF₁₀ and posterior of mean difference instead of t and p-value.</span></div>
+          <div class="ref-example"><em>Example:</em> Bayesian t-test for CBT vs control on anxiety: BF₁₀ = 12.4 → strong evidence CBT reduces anxiety. Can also quantify evidence for the null (H₀), unlike NHST which can only reject it.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- EFFECT SIZE TABLE -->
+  <div class="ref-section">
+    <div class="ref-section-title teal">Effect Size Quick Reference Table</div>
+    <table class="es-table">
+      <thead>
+        <tr>
+          <th>Test</th>
+          <th>Effect size measure</th>
+          <th>Small</th>
+          <th>Medium</th>
+          <th>Large</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>t-tests (independent &amp; paired)</td><td>Cohen's d</td><td>&lt; 0.3</td><td>0.3–0.5</td><td>&gt; 0.5</td><td>Lectures: trivial &lt;0.1, small 0.1–0.3. d = (M₁−M₂)/SD_pooled. Large n can produce significant p with trivial d.</td></tr>
+        <tr><td>ANOVA (between-subjects)</td><td>η² (eta squared)</td><td>0.01</td><td>0.06</td><td>0.14</td><td>η² = SS_between/SS_total. Partial η² is more common in factorial designs and reported in SPSS.</td></tr>
+        <tr><td>Repeated Measures ANOVA</td><td>Partial η² / ω²</td><td>0.01</td><td>0.06</td><td>0.14</td><td>ω² is less biased than η². Report alongside F, df, and p.</td></tr>
+        <tr><td>Correlation (Pearson, Spearman)</td><td>r / ρ</td><td>0.10</td><td>0.30</td><td>0.50</td><td>r itself is the effect size. r² = shared variance. Report alongside t(df) and p.</td></tr>
+        <tr><td>Chi-square (2×2)</td><td>φ (phi)</td><td>0.10</td><td>0.30</td><td>0.50</td><td>φ = √(χ²/n). Same threshold as r. Report: χ²(df, N=n) = x.xx, p = .xxx, φ = x.xx.</td></tr>
+        <tr><td>Chi-square (&gt;2×2 table)</td><td>Cramér's V</td><td>0.10</td><td>0.30</td><td>0.50</td><td>V = √(χ²/n·df*) where df* = min(rows−1, cols−1). Report alongside χ², df, N, p.</td></tr>
+        <tr><td>Non-parametric (Mann-Whitney, Wilcoxon, Kruskal)</td><td>r = Z/√N</td><td>0.10</td><td>0.30</td><td>0.50</td><td>Convert Z from test output. Same thresholds as Pearson r. Often overlooked but important to report.</td></tr>
+        <tr><td>Regression</td><td>R² (or f² = R²/(1−R²))</td><td>f² = 0.02</td><td>f² = 0.15</td><td>f² = 0.35</td><td>R² = total variance explained. Adjusted R² penalises extra predictors. f² is Cohen's effect size for regression.</td></tr>
+        <tr><td>Logistic regression</td><td>Nagelkerke R² / AUC</td><td>—</td><td>—</td><td>—</td><td>No universal thresholds. AUC: 0.5 = chance, 0.7–0.8 = acceptable, &gt;0.9 = excellent discrimination.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div><!-- end page 3 -->
+
+</body>
+</html>
